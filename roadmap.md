@@ -1,3 +1,3 @@
-- [ ] Build the Supply Chain Intelligence Phase One overview, shell, mock data, and planned-module pages.
-- [ ] Verify dashboard controls and desktop/narrow-screen layouts in the browser.
-- [ ] Run the available tests and production build; resolve any errors.
+- [x] Build the Supply Chain Intelligence Phase One overview, shell, mock data, and planned-module pages.
+- [x] Verify dashboard controls and desktop/narrow-screen layouts in the browser.
+- [x] Run the available tests and production build; resolve any errors.

@@ -65,9 +65,9 @@ import {
   calculateKpis,
   businessUnits,
   getDeliveryTrend,
+  getInventoryHealth,
   exceptions,
   filterExceptions,
-  inventoryHealth,
   regions,
   type DashboardFilters,
   type ExceptionStatus,
@@ -94,6 +94,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
   const [activeException, setActiveException] = useState<SupplyChainException | null>(null);
   const [drawerMode, setDrawerMode] = useState<"details" | "investigate">("details");
   const [owners, setOwners] = useState<Record<string, string>>({});
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, ExceptionStatus>>({});
   const [assignmentMessage, setAssignmentMessage] = useState("");
   const kpis = useMemo(() => calculateKpis(filters), [filters]);
   const visibleExceptions = useMemo(() => {
@@ -101,6 +102,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
     const workspaceSearch = globalSearch.trim().toLowerCase();
     const severityOrder: Record<Severity, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
     return filterExceptions(exceptions, filters)
+      .map((record) => ({ ...record, status: statusOverrides[record.id] ?? record.status }))
       .filter((record) => !tableSearch || `${record.id} ${record.title} ${record.location}`.toLowerCase().includes(tableSearch))
       .filter((record) => !workspaceSearch || `${record.id} ${record.title} ${record.location}`.toLowerCase().includes(workspaceSearch))
       .filter((record) => severityFilter === "All Severities" || record.severity === severityFilter)
@@ -116,10 +118,11 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
         }
         return String(aValue).localeCompare(String(bValue)) * direction;
       });
-  }, [filters, globalSearch, severityFilter, sortAsc, sortKey, statusFilter, tableQuery]);
+  }, [filters, globalSearch, severityFilter, sortAsc, sortKey, statusFilter, statusOverrides, tableQuery]);
   const hasFilters = filters.region !== "All Regions" || filters.businessUnit !== "All Business Units" || filters.dateRange !== "Last 30 days";
   const chartShift = (filters.region === "All Regions" ? 0 : filters.region === "Europe" ? -0.4 : 0.2) + (filters.businessUnit === "Healthcare" ? -0.3 : filters.businessUnit === "Industrial" ? 0.15 : 0) + (filters.dateRange === "Last 7 days" ? -0.2 : filters.dateRange === "Last 90 days" ? 0.25 : 0);
   const trend = getDeliveryTrend(filters.dateRange, chartShift);
+  const inventory = getInventoryHealth(filters.region, filters.businessUnit);
 
   function resetFilters() {
     setFilters(initialFilters);
@@ -182,16 +185,16 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
           <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">Inventory Health</h2><p className="mt-1 text-xs text-muted-foreground">Network-wide unit distribution</p></div><span className="rounded-sm bg-secondary px-2 py-1 text-[10px] font-medium text-secondary-foreground">4 categories</span></div>
           <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><span className="text-lg font-semibold text-foreground">26,580</span><span>tracked units</span><span className="ml-auto">by inventory status</span></div>
           <div className="mt-2 h-[196px] min-w-0" role="img" aria-label="Horizontal bar chart showing healthy, at risk, overstocked and stockout inventory units">
-            <ResponsiveContainer width="100%" height="100%"><BarChart data={inventoryHealth} layout="vertical" margin={{ top: 4, right: 26, left: 0, bottom: 4 }} barCategoryGap="24%">
+            <ResponsiveContainer width="100%" height="100%"><BarChart data={inventory} layout="vertical" margin={{ top: 4, right: 26, left: 0, bottom: 4 }} barCategoryGap="24%">
               <CartesianGrid stroke="var(--chart-grid)" horizontal={false} />
               <XAxis type="number" tickFormatter={(value) => `${Math.round(value / 1000)}k`} tick={{ fill: "var(--chart-label)", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="name" width={90} tick={{ fill: "var(--chart-label)", fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<InventoryTooltip />} cursor={{ fill: "var(--chart-grid)" }} />
-              <Bar dataKey="units" name="Units" radius={[0, 3, 3, 0]} maxBarSize={24} label={{ position: "right", fill: "var(--chart-label)", fontSize: 10, formatter: (value: number) => value.toLocaleString() }}>{inventoryHealth.map((item) => <Cell key={item.name} fill={item.fill} />)}</Bar>
+              <Bar dataKey="units" name="Units" radius={[0, 3, 3, 0]} maxBarSize={24} label={{ position: "right", fill: "var(--chart-label)", fontSize: 10, formatter: (value: number) => value.toLocaleString() }}>{inventory.map((item) => <Cell key={item.name} fill={item.fill} />)}</Bar>
             </BarChart></ResponsiveContainer>
           </div>
           <div className="grid grid-cols-2 gap-x-3 gap-y-2 border-t border-border pt-3">
-            {inventoryHealth.map((item, index) => <div key={item.name} className="flex min-w-0 items-center gap-2 text-xs"><span className="grid size-4 shrink-0 place-items-center rounded-sm border border-border text-[9px] font-semibold text-muted-foreground">{index + 1}</span><span className="truncate text-muted-foreground">{item.name}</span><span className="ml-auto font-medium tabular-nums">{item.units.toLocaleString()}</span></div>)}
+            {inventory.map((item, index) => <div key={item.name} className="flex min-w-0 items-center gap-2 text-xs"><span className="grid size-4 shrink-0 place-items-center rounded-sm border border-border text-[9px] font-semibold text-muted-foreground">{index + 1}</span><span className="truncate text-muted-foreground">{item.name}</span><span className="ml-auto font-medium tabular-nums">{item.units.toLocaleString()}</span></div>)}
           </div>
         </div>
       </section>
@@ -244,7 +247,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
 
       <Sheet open={activeException !== null} onOpenChange={(open) => { if (!open) setActiveException(null); }}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-[440px]">
-          {activeException && <ExceptionDrawerContent record={activeException} owner={owners[activeException.id] ?? activeException.owner} mode={drawerMode} onInvestigate={() => setDrawerMode("investigate")} onStatusChange={(status) => setActiveException({ ...activeException, status })} />}
+          {activeException && <ExceptionDrawerContent record={activeException} owner={owners[activeException.id] ?? activeException.owner} mode={drawerMode} onInvestigate={() => setDrawerMode("investigate")} onStatusChange={(status) => { setStatusOverrides((current) => ({ ...current, [activeException.id]: status })); setActiveException({ ...activeException, status }); }} />}
         </SheetContent>
       </Sheet>
     </main>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateKpis, exceptions, filterExceptions, getDeliveryTrend } from "@/data/supply-chain";
+import { calculateKpis, exceptions, filterExceptions, getDeliveryTrend, getInventoryHealth, inventoryHealth } from "@/data/supply-chain";
 
 describe("supply chain overview mock data", () => {
   it("shows the four specified default KPI values", () => {
@@ -27,9 +27,14 @@ describe("supply chain overview mock data", () => {
     const week = getDeliveryTrend("Last 7 days", 0);
     const quarter = getDeliveryTrend("Last 90 days", 0);
     expect(week).toHaveLength(4);
-    expect(week[0].day).toBe("Apr 24");
+    expect(week.at(0)?.day).toBe("Apr 24");
     expect(week.at(-1)?.day).toBe("Apr 30");
-    expect(quarter[0].day).toBe("Feb 01");
+    expect(quarter.at(0)?.day).toBe("Jan 31");
     expect(quarter.at(-1)?.day).toBe("Apr 30");
+  });
+
+  it("keeps default inventory totals and adapts them to a selected region", () => {
+    expect(getInventoryHealth("All Regions", "All Business Units")).toEqual(inventoryHealth);
+    expect(getInventoryHealth("Europe", "All Business Units").reduce((sum, category) => sum + category.units, 0)).toBe(8240);
   });
 });
