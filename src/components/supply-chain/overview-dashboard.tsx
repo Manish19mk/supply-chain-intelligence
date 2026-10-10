@@ -170,7 +170,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
 
       <section aria-label="Supply chain analytics" className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(360px,1fr)]">
         <div className="dashboard-panel min-w-0">
-          <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">On-Time Delivery Trend</h2><p className="mt-1 text-xs text-muted-foreground">Observed values · {trendStart}–{trendEnd}, 2026</p></div><span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-positive-subtle px-2 py-1 text-xs font-medium text-positive"><TrendingUp className="size-3.5" />94.2%</span></div>
+          <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">On-Time Delivery Trend</h2><p className="mt-1 text-xs text-muted-foreground">Selected: {filters.dateRange} · {trend.length} source observations · {trendStart}–{trendEnd}</p></div><span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-positive-subtle px-2 py-1 text-xs font-medium text-positive"><TrendingUp className="size-3.5" />94.2%</span></div>
           <div className="mt-4 h-[238px] min-w-0" role="img" aria-label="Line chart showing on-time delivery trend against a 95 percent target">
             <ResponsiveContainer width="100%" height="100%"><LineChart data={trend} margin={{ top: 10, right: 8, left: -21, bottom: 0 }}>
               <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="3 4" vertical={false} />
