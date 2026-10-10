@@ -147,6 +147,17 @@ export const inventoryHealth = [
   { name: "Stockout", units: 740, fill: "var(--chart-series-5)" },
 ];
 
+export function getInventoryHealth(region: string, businessUnit: string) {
+  const regionScale = region === "All Regions" ? 1 : region === "North America" ? 0.52 : region === "Europe" ? 0.31 : 0.17;
+  const unitScale = businessUnit === "All Business Units" ? 1 : businessUnit === "Consumer Goods" ? 0.48 : businessUnit === "Industrial" ? 0.33 : 0.19;
+  const scale = businessUnit === "All Business Units" ? regionScale : region === "All Regions" ? unitScale : regionScale * unitScale * 1.9;
+
+  return inventoryHealth.map((category) => ({
+    ...category,
+    units: Math.max(1, Math.round(category.units * scale)),
+  }));
+}
+
 export const regions = ["All Regions", "North America", "Europe", "Asia Pacific"];
 export const businessUnits = ["All Business Units", "Consumer Goods", "Industrial", "Healthcare"];
 
