@@ -72,6 +72,10 @@
   --color-chart-series-3: var(--chart-3);
   --color-chart-series-4: var(--chart-4);
   --color-chart-series-5: var(--chart-5);
+  --color-inventory-healthy: var(--inventory-healthy);
+  --color-inventory-at-risk: var(--inventory-at-risk);
+  --color-inventory-overstocked: var(--inventory-overstocked);
+  --color-inventory-stockout: var(--inventory-stockout);
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -119,6 +123,10 @@
   --info-subtle: oklch(0.95 0.03 235);
   --chart-grid: oklch(0.92 0.012 250);
   --chart-label: oklch(0.54 0.032 255);
+  --inventory-healthy: var(--positive);
+  --inventory-at-risk: var(--warning);
+  --inventory-overstocked: oklch(0.53 0.025 255);
+  --inventory-stockout: var(--critical);
 }
 
 .dark {
@@ -164,6 +172,10 @@
   --info-subtle: oklch(0.95 0.03 235);
   --chart-grid: oklch(0.92 0.012 250);
   --chart-label: oklch(0.54 0.032 255);
+  --inventory-healthy: var(--positive);
+  --inventory-at-risk: var(--warning);
+  --inventory-overstocked: oklch(0.53 0.025 255);
+  --inventory-stockout: var(--critical);
 }
 
 @layer base {

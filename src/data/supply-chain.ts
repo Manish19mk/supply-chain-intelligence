@@ -128,23 +128,26 @@ export const deliveryTrend = [
 ];
 
 export function getDeliveryTrend(range: string, adjustment: number) {
-  const sample = range === "Last 7 days" ? deliveryTrend.slice(-4) : deliveryTrend;
-  const periodDays = range === "Last 7 days" ? 7 : range === "Last 90 days" ? 90 : 30;
-  const endDate = new Date("2026-04-30T00:00:00Z");
+  const rangeDays = range === "Last 7 days" ? 7 : range === "Last 90 days" ? 90 : 30;
+  const snapshotDate = Date.UTC(2026, 3, 30);
+  const dayInMilliseconds = 24 * 60 * 60 * 1000;
 
-  return sample.map((point, index) => {
-    const dateOffset = Math.round(((sample.length - 1 - index) / Math.max(sample.length - 1, 1)) * (periodDays - 1));
-    const date = new Date(endDate.getTime() - dateOffset * 24 * 60 * 60 * 1000);
-    const label = date.toLocaleDateString("en-US", { month: "short", day: "2-digit", timeZone: "UTC" });
-    return { ...point, day: label, actual: Math.min(99, Math.max(90, point.actual + adjustment)) };
-  });
+  return deliveryTrend
+    .filter((point) => {
+      if (rangeDays === 90) return true;
+      const [month, day] = point.day.split(" ");
+      const monthNumber = new Date(`${month} 1, 2026`).getMonth();
+      const pointDate = Date.UTC(2026, monthNumber, Number(day));
+      return snapshotDate - pointDate < rangeDays * dayInMilliseconds;
+    })
+    .map((point) => ({ ...point, actual: Math.min(99, Math.max(90, point.actual + adjustment)) }));
 }
 
 export const inventoryHealth = [
-  { name: "Healthy", units: 18400, fill: "var(--chart-series-2)" },
-  { name: "At Risk", units: 4260, fill: "var(--chart-series-3)" },
-  { name: "Overstocked", units: 3180, fill: "var(--chart-series-4)" },
-  { name: "Stockout", units: 740, fill: "var(--chart-series-5)" },
+  { name: "Healthy", units: 18400, fill: "var(--inventory-healthy)", legendClass: "bg-inventory-healthy" },
+  { name: "At Risk", units: 4260, fill: "var(--inventory-at-risk)", legendClass: "bg-inventory-at-risk" },
+  { name: "Overstocked", units: 3180, fill: "var(--inventory-overstocked)", legendClass: "bg-inventory-overstocked" },
+  { name: "Stockout", units: 740, fill: "var(--inventory-stockout)", legendClass: "bg-inventory-stockout" },
 ];
 
 export function getInventoryHealth(region: string, businessUnit: string) {
