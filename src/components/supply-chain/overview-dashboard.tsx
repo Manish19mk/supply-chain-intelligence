@@ -173,7 +173,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
         </div>
 
         <div className="dashboard-panel min-w-0">
-          <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">Inventory Health</h2><p className="mt-1 text-xs text-muted-foreground">Network-wide unit distribution</p></div><Button variant="ghost" size="icon" aria-label="Inventory health details" className="size-8"><MoreHorizontal className="size-4" /></Button></div>
+          <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">Inventory Health</h2><p className="mt-1 text-xs text-muted-foreground">Network-wide unit distribution</p></div><span className="rounded-sm bg-secondary px-2 py-1 text-[10px] font-medium text-secondary-foreground">4 categories</span></div>
           <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><span className="text-lg font-semibold text-foreground">26,580</span><span>tracked units</span><span className="ml-auto">by inventory status</span></div>
           <div className="mt-2 h-[196px] min-w-0" role="img" aria-label="Horizontal bar chart showing healthy, at risk, overstocked and stockout inventory units">
             <ResponsiveContainer width="100%" height="100%"><BarChart data={inventoryHealth} layout="vertical" margin={{ top: 4, right: 26, left: 0, bottom: 4 }} barCategoryGap="24%">
