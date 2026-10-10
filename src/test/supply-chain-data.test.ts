@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateKpis, exceptions, filterExceptions, getDeliveryTrend, getInventoryHealth, inventoryHealth } from "@/data/supply-chain";
+import { calculateKpis, deliveryTrend, exceptions, filterExceptions, getDeliveryTrend, getInventoryHealth, inventoryHealth } from "@/data/supply-chain";
 
 describe("supply chain overview mock data", () => {
   it("shows the four specified default KPI values", () => {
