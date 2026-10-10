@@ -64,7 +64,7 @@ import {
 import {
   calculateKpis,
   businessUnits,
-  deliveryTrend,
+  getDeliveryTrend,
   exceptions,
   filterExceptions,
   inventoryHealth,
@@ -89,7 +89,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
   const [severityFilter, setSeverityFilter] = useState("All Severities");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [sortKey, setSortKey] = useState<"id" | "title" | "category" | "location" | "severity" | "detected" | "status">("detected");
-  const [sortAsc, setSortAsc] = useState(false);
+  const [sortAsc, setSortAsc] = useState(true);
   const [showAll, setShowAll] = useState(false);
   const [activeException, setActiveException] = useState<SupplyChainException | null>(null);
   const [drawerMode, setDrawerMode] = useState<"details" | "investigate">("details");
@@ -97,10 +97,12 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
   const [assignmentMessage, setAssignmentMessage] = useState("");
   const kpis = useMemo(() => calculateKpis(filters), [filters]);
   const visibleExceptions = useMemo(() => {
-    const query = `${tableQuery} ${globalSearch}`.trim().toLowerCase();
+    const tableSearch = tableQuery.trim().toLowerCase();
+    const workspaceSearch = globalSearch.trim().toLowerCase();
     const severityOrder: Record<Severity, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
     return filterExceptions(exceptions, filters)
-      .filter((record) => !query || `${record.id} ${record.title} ${record.location}`.toLowerCase().includes(query))
+      .filter((record) => !tableSearch || `${record.id} ${record.title} ${record.location}`.toLowerCase().includes(tableSearch))
+      .filter((record) => !workspaceSearch || `${record.id} ${record.title} ${record.location}`.toLowerCase().includes(workspaceSearch))
       .filter((record) => severityFilter === "All Severities" || record.severity === severityFilter)
       .filter((record) => statusFilter === "All Statuses" || record.status === statusFilter)
       .sort((a, b) => {
@@ -108,12 +110,16 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
         const bValue = b[sortKey];
         const direction = sortAsc ? 1 : -1;
         if (sortKey === "severity") return (severityOrder[a.severity] - severityOrder[b.severity]) * direction;
+        if (sortKey === "detected") {
+          const freshness: Record<string, number> = { "18 min ago": 0, "46 min ago": 1, "2 hours ago": 2, "4 hours ago": 3, Yesterday: 4, "2 days ago": 5 };
+          return ((freshness[a.detected] ?? 99) - (freshness[b.detected] ?? 99)) * direction;
+        }
         return String(aValue).localeCompare(String(bValue)) * direction;
       });
   }, [filters, globalSearch, severityFilter, sortAsc, sortKey, statusFilter, tableQuery]);
   const hasFilters = filters.region !== "All Regions" || filters.businessUnit !== "All Business Units" || filters.dateRange !== "Last 30 days";
-  const chartShift = filters.region === "All Regions" ? 0 : filters.region === "Europe" ? -0.4 : 0.2;
-  const trend = deliveryTrend.map((point) => ({ ...point, actual: Math.min(99, Math.max(90, point.actual + chartShift)) }));
+  const chartShift = (filters.region === "All Regions" ? 0 : filters.region === "Europe" ? -0.4 : 0.2) + (filters.businessUnit === "Healthcare" ? -0.3 : filters.businessUnit === "Industrial" ? 0.15 : 0) + (filters.dateRange === "Last 7 days" ? -0.2 : filters.dateRange === "Last 90 days" ? 0.25 : 0);
+  const trend = getDeliveryTrend(filters.dateRange, chartShift);
 
   function resetFilters() {
     setFilters(initialFilters);
@@ -244,7 +250,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
     </main>
   );
 
-  function setSort(field: typeof sortKey) {
+  function setSort(field: SortField) {
     if (sortKey === field) setSortAsc((value) => !value);
     else { setSortKey(field); setSortAsc(true); }
   }
@@ -256,10 +262,11 @@ function FilterSelect({ label, value, options, onChange }: { label: string; valu
 
 function KpiCard({ metric }: { metric: ReturnType<typeof calculateKpis>[number] }) {
   const positiveTrend = metric.positive;
+  const movingUp = metric.direction === "up";
   const icon = metric.icon === "truck" ? <Truck /> : metric.icon === "boxes" ? <Boxes /> : metric.icon === "rotate" ? <RotateCcw /> : <CircleAlert />;
   return <article className="dashboard-panel flex min-h-[144px] flex-col justify-between p-4" aria-label={`${metric.label}: ${metric.value}, ${metric.change} ${positiveTrend ? "favorable" : "requires attention"}`}>
     <div className="flex items-center justify-between gap-2"><span className="text-xs font-medium text-muted-foreground">{metric.label}</span><span className={`grid size-8 place-items-center rounded-sm ${positiveTrend ? "bg-positive-subtle text-positive" : "bg-warning-subtle text-warning"}`}>{icon}</span></div>
-    <div className="mt-3"><div className="text-[27px] font-semibold leading-none tabular-nums">{metric.value}</div><div className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px]"><span className={`inline-flex items-center gap-0.5 font-semibold ${positiveTrend ? "text-positive" : "text-critical"}`}>{positiveTrend ? <ArrowUpRight className="size-3.5" /> : <ArrowDownRight className="size-3.5" />}{metric.change}</span><span className="text-muted-foreground">{metric.note}</span></div></div>
+    <div className="mt-3"><div className="text-[27px] font-semibold leading-none tabular-nums">{metric.value}</div><div className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px]"><span className={`inline-flex items-center gap-0.5 font-semibold ${positiveTrend ? "text-positive" : "text-critical"}`}>{movingUp ? <ArrowUpRight className="size-3.5" /> : <ArrowDownRight className="size-3.5" />}{metric.change}</span><span className="text-muted-foreground">{metric.note}</span></div></div>
   </article>;
 }
 

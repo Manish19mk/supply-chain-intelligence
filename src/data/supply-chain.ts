@@ -127,6 +127,19 @@ export const deliveryTrend = [
   { day: "Apr 29", actual: 94.9 },
 ];
 
+export function getDeliveryTrend(range: string, adjustment: number) {
+  const sample = range === "Last 7 days" ? deliveryTrend.slice(-4) : deliveryTrend;
+  const periodDays = range === "Last 7 days" ? 7 : range === "Last 90 days" ? 90 : 30;
+  const endDate = new Date("2026-04-30T00:00:00Z");
+
+  return sample.map((point, index) => {
+    const dateOffset = Math.round(((sample.length - 1 - index) / Math.max(sample.length - 1, 1)) * (periodDays - 1));
+    const date = new Date(endDate.getTime() - dateOffset * 24 * 60 * 60 * 1000);
+    const label = date.toLocaleDateString("en-US", { month: "short", day: "2-digit", timeZone: "UTC" });
+    return { ...point, day: label, actual: Math.min(99, Math.max(90, point.actual + adjustment)) };
+  });
+}
+
 export const inventoryHealth = [
   { name: "Healthy", units: 18400, fill: "var(--chart-series-2)" },
   { name: "At Risk", units: 4260, fill: "var(--chart-series-3)" },
@@ -161,9 +174,9 @@ export function calculateKpis(filters: DashboardFilters) {
   const shift = regionShift + unitShift + rangeShift;
 
   return [
-    { label: "On-Time Delivery", value: `${(94.2 + shift).toFixed(1)}%`, change: "+1.8%", positive: true, note: "vs. previous period", icon: "truck" },
-    { label: "Fill Rate", value: `${(96.8 + shift / 2).toFixed(1)}%`, change: "+0.6%", positive: true, note: "vs. previous period", icon: "boxes" },
-    { label: "Inventory Turns", value: `${(8.4 + shift / 10).toFixed(1)}x`, change: "−0.3x", positive: false, note: "vs. previous period", icon: "rotate" },
-    { label: "Stockout Rate", value: `${(2.7 - shift / 5).toFixed(1)}%`, change: "+0.4 pp", positive: false, note: "vs. previous period", icon: "alert" },
+    { label: "On-Time Delivery", value: `${(94.2 + shift).toFixed(1)}%`, change: "+1.8%", direction: "up", positive: true, note: "vs. previous period", icon: "truck" },
+    { label: "Fill Rate", value: `${(96.8 + shift / 2).toFixed(1)}%`, change: "+0.6%", direction: "up", positive: true, note: "vs. previous period", icon: "boxes" },
+    { label: "Inventory Turns", value: `${(8.4 + shift / 10).toFixed(1)}x`, change: "−0.3x", direction: "down", positive: false, note: "vs. previous period", icon: "rotate" },
+    { label: "Stockout Rate", value: `${(2.7 - shift / 5).toFixed(1)}%`, change: "+0.4 pp", direction: "up", positive: false, note: "vs. previous period", icon: "alert" },
   ];
 }
