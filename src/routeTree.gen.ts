@@ -10,33 +10,141 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DemandForecastRouteImport } from './routes/demand-forecast'
+import { Route as ExceptionCenterRouteImport } from './routes/exception-center'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as InventoryIntelligenceRouteImport } from './routes/inventory-intelligence'
+import { Route as LogisticsPerformanceRouteImport } from './routes/logistics-performance'
+import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SupplierPerformanceRouteImport } from './routes/supplier-performance'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemandForecastRoute = DemandForecastRouteImport.update({
+  id: '/demand-forecast',
+  path: '/demand-forecast',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExceptionCenterRoute = ExceptionCenterRouteImport.update({
+  id: '/exception-center',
+  path: '/exception-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventoryIntelligenceRoute = InventoryIntelligenceRouteImport.update({
+  id: '/inventory-intelligence',
+  path: '/inventory-intelligence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogisticsPerformanceRoute = LogisticsPerformanceRouteImport.update({
+  id: '/logistics-performance',
+  path: '/logistics-performance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupplierPerformanceRoute = SupplierPerformanceRouteImport.update({
+  id: '/supplier-performance',
+  path: '/supplier-performance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/demand-forecast': typeof DemandForecastRoute
+  '/exception-center': typeof ExceptionCenterRoute
+  '/help': typeof HelpRoute
+  '/inventory-intelligence': typeof InventoryIntelligenceRoute
+  '/logistics-performance': typeof LogisticsPerformanceRoute
+  '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
+  '/supplier-performance': typeof SupplierPerformanceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/demand-forecast': typeof DemandForecastRoute
+  '/exception-center': typeof ExceptionCenterRoute
+  '/help': typeof HelpRoute
+  '/inventory-intelligence': typeof InventoryIntelligenceRoute
+  '/logistics-performance': typeof LogisticsPerformanceRoute
+  '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
+  '/supplier-performance': typeof SupplierPerformanceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/demand-forecast': typeof DemandForecastRoute
+  '/exception-center': typeof ExceptionCenterRoute
+  '/help': typeof HelpRoute
+  '/inventory-intelligence': typeof InventoryIntelligenceRoute
+  '/logistics-performance': typeof LogisticsPerformanceRoute
+  '/reports': typeof ReportsRoute
+  '/settings': typeof SettingsRoute
+  '/supplier-performance': typeof SupplierPerformanceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/demand-forecast'
+    | '/exception-center'
+    | '/help'
+    | '/inventory-intelligence'
+    | '/logistics-performance'
+    | '/reports'
+    | '/settings'
+    | '/supplier-performance'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/demand-forecast'
+    | '/exception-center'
+    | '/help'
+    | '/inventory-intelligence'
+    | '/logistics-performance'
+    | '/reports'
+    | '/settings'
+    | '/supplier-performance'
+  id:
+    | '__root__'
+    | '/'
+    | '/demand-forecast'
+    | '/exception-center'
+    | '/help'
+    | '/inventory-intelligence'
+    | '/logistics-performance'
+    | '/reports'
+    | '/settings'
+    | '/supplier-performance'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DemandForecastRoute: typeof DemandForecastRoute
+  ExceptionCenterRoute: typeof ExceptionCenterRoute
+  HelpRoute: typeof HelpRoute
+  InventoryIntelligenceRoute: typeof InventoryIntelligenceRoute
+  LogisticsPerformanceRoute: typeof LogisticsPerformanceRoute
+  ReportsRoute: typeof ReportsRoute
+  SettingsRoute: typeof SettingsRoute
+  SupplierPerformanceRoute: typeof SupplierPerformanceRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +156,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demand-forecast': {
+      id: '/demand-forecast'
+      path: '/demand-forecast'
+      fullPath: '/demand-forecast'
+      preLoaderRoute: typeof DemandForecastRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exception-center': {
+      id: '/exception-center'
+      path: '/exception-center'
+      fullPath: '/exception-center'
+      preLoaderRoute: typeof ExceptionCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventory-intelligence': {
+      id: '/inventory-intelligence'
+      path: '/inventory-intelligence'
+      fullPath: '/inventory-intelligence'
+      preLoaderRoute: typeof InventoryIntelligenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/logistics-performance': {
+      id: '/logistics-performance'
+      path: '/logistics-performance'
+      fullPath: '/logistics-performance'
+      preLoaderRoute: typeof LogisticsPerformanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/supplier-performance': {
+      id: '/supplier-performance'
+      path: '/supplier-performance'
+      fullPath: '/supplier-performance'
+      preLoaderRoute: typeof SupplierPerformanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DemandForecastRoute: DemandForecastRoute,
+  ExceptionCenterRoute: ExceptionCenterRoute,
+  HelpRoute: HelpRoute,
+  InventoryIntelligenceRoute: InventoryIntelligenceRoute,
+  LogisticsPerformanceRoute: LogisticsPerformanceRoute,
+  ReportsRoute: ReportsRoute,
+  SettingsRoute: SettingsRoute,
+  SupplierPerformanceRoute: SupplierPerformanceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
