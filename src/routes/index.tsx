@@ -1,24 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { AppShell } from "@/components/supply-chain/app-shell";
+import { OverviewDashboard } from "@/components/supply-chain/overview-dashboard";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Supply Chain Overview | Supply Chain Intelligence" },
+      { name: "description", content: "Monitor network performance, identify supply chain risks, and prioritize operational action." },
+      { property: "og:title", content: "Supply Chain Overview | Supply Chain Intelligence" },
+      { property: "og:description", content: "Monitor network performance, identify supply chain risks, and prioritize operational action." },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+  const [globalSearch, setGlobalSearch] = useState("");
+  return <AppShell onGlobalSearch={setGlobalSearch}><OverviewDashboard globalSearch={globalSearch} onGlobalSearch={setGlobalSearch} /></AppShell>;
 }
