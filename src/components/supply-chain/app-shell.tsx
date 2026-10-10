@@ -41,6 +41,7 @@ export const navigationItems = [
   { label: "Exception Center", to: "/exception-center", icon: ClipboardList },
   { label: "Reports", to: "/reports", icon: FileBarChart },
 ];
+const reportsNavigationItem = { label: "Reports", to: "/reports", icon: FileBarChart };
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -68,7 +69,7 @@ export function AppShell({ children, onGlobalSearch }: AppShellProps) {
             {navigationItems.slice(0, 6).map((item) => <NavigationItem key={item.to} {...item} collapsed={collapsed} onClick={() => setMobileOpen(false)} />)}
           </nav>
           <p className={`mb-2 mt-7 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground ${collapsed ? "sr-only" : ""}`}>Insights</p>
-          <nav aria-label="Insights navigation"><NavigationItem {...navigationItems[6]} collapsed={collapsed} onClick={() => setMobileOpen(false)} /></nav>
+          <nav aria-label="Insights navigation"><NavigationItem {...reportsNavigationItem} collapsed={collapsed} onClick={() => setMobileOpen(false)} /></nav>
         </div>
         <div className="border-t border-sidebar-border px-3 py-3">
           <NavigationItem label="Settings" to="/settings" icon={Settings} collapsed={collapsed} onClick={() => setMobileOpen(false)} />

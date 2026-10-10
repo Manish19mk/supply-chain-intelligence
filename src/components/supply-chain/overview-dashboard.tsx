@@ -263,7 +263,9 @@ function KpiCard({ metric }: { metric: ReturnType<typeof calculateKpis>[number] 
   </article>;
 }
 
-function SortableHeader({ label, field, current, asc, onSort }: { label: string; field: "id" | "title" | "category" | "location" | "severity" | "detected" | "status"; current: string; asc: boolean; onSort: (field: typeof field) => void }) {
+type SortField = "id" | "title" | "category" | "location" | "severity" | "detected" | "status";
+
+function SortableHeader({ label, field, current, asc, onSort }: { label: string; field: SortField; current: string; asc: boolean; onSort: (field: SortField) => void }) {
   return <th className="whitespace-nowrap px-3 first:pl-4"><button onClick={() => onSort(field)} className="inline-flex items-center gap-1.5 hover:text-foreground" aria-label={`Sort by ${label}`} aria-sort={current === field ? (asc ? "ascending" : "descending") : "none"}>{label}<span className={`text-[9px] ${current === field ? "text-primary" : "opacity-50"}`}>{current === field ? (asc ? "↑" : "↓") : "↕"}</span></button></th>;
 }
 
@@ -294,11 +296,13 @@ function DetailItem({ label, value }: { label: string; value: string }) {
 }
 
 function DeliveryTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
-  if (!active || !payload?.length) return null;
-  return <div className="rounded-sm border border-border bg-popover px-3 py-2 text-xs shadow-sm"><p className="mb-1.5 font-medium">{label}</p><p className="flex items-center gap-2 text-muted-foreground"><span className="size-2 rounded-full bg-chart-series-1" />On-time delivery <strong className="ml-2 text-foreground">{payload[0].value.toFixed(1)}%</strong></p><p className="mt-1 flex items-center gap-2 text-muted-foreground"><span className="size-2 rounded-full bg-chart-series-3" />Target <strong className="ml-auto text-foreground">95.0%</strong></p></div>;
+  const datum = payload?.[0];
+  if (!active || !datum) return null;
+  return <div className="rounded-sm border border-border bg-popover px-3 py-2 text-xs shadow-sm"><p className="mb-1.5 font-medium">{label}</p><p className="flex items-center gap-2 text-muted-foreground"><span className="size-2 rounded-full bg-chart-series-1" />On-time delivery <strong className="ml-2 text-foreground">{datum.value.toFixed(1)}%</strong></p><p className="mt-1 flex items-center gap-2 text-muted-foreground"><span className="size-2 rounded-full bg-chart-series-3" />Target <strong className="ml-auto text-foreground">95.0%</strong></p></div>;
 }
 
 function InventoryTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: { name: string; units: number } }> }) {
-  if (!active || !payload?.length) return null;
-  return <div className="rounded-sm border border-border bg-popover px-3 py-2 text-xs shadow-sm"><p className="font-medium">{payload[0].payload.name}</p><p className="mt-1 text-muted-foreground">{payload[0].payload.units.toLocaleString()} units</p></div>;
+  const datum = payload?.[0]?.payload;
+  if (!active || !datum) return null;
+  return <div className="rounded-sm border border-border bg-popover px-3 py-2 text-xs shadow-sm"><p className="font-medium">{datum.name}</p><p className="mt-1 text-muted-foreground">{datum.units.toLocaleString()} units</p></div>;
 }
