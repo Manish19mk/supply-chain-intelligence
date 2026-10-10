@@ -18,6 +18,7 @@ import {
   Truck,
   UserRound,
   Users,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
