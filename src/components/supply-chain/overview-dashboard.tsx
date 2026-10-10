@@ -64,7 +64,7 @@ import {
 import {
   calculateKpis,
   businessUnits,
-  deliveryTrend,
+  getDeliveryTrend,
   exceptions,
   filterExceptions,
   inventoryHealth,
@@ -89,7 +89,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
   const [severityFilter, setSeverityFilter] = useState("All Severities");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [sortKey, setSortKey] = useState<"id" | "title" | "category" | "location" | "severity" | "detected" | "status">("detected");
-  const [sortAsc, setSortAsc] = useState(false);
+  const [sortAsc, setSortAsc] = useState(true);
   const [showAll, setShowAll] = useState(false);
   const [activeException, setActiveException] = useState<SupplyChainException | null>(null);
   const [drawerMode, setDrawerMode] = useState<"details" | "investigate">("details");
@@ -97,10 +97,12 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
   const [assignmentMessage, setAssignmentMessage] = useState("");
   const kpis = useMemo(() => calculateKpis(filters), [filters]);
   const visibleExceptions = useMemo(() => {
-    const query = `${tableQuery} ${globalSearch}`.trim().toLowerCase();
+    const tableSearch = tableQuery.trim().toLowerCase();
+    const workspaceSearch = globalSearch.trim().toLowerCase();
     const severityOrder: Record<Severity, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
     return filterExceptions(exceptions, filters)
-      .filter((record) => !query || `${record.id} ${record.title} ${record.location}`.toLowerCase().includes(query))
+      .filter((record) => !tableSearch || `${record.id} ${record.title} ${record.location}`.toLowerCase().includes(tableSearch))
+      .filter((record) => !workspaceSearch || `${record.id} ${record.title} ${record.location}`.toLowerCase().includes(workspaceSearch))
       .filter((record) => severityFilter === "All Severities" || record.severity === severityFilter)
       .filter((record) => statusFilter === "All Statuses" || record.status === statusFilter)
       .sort((a, b) => {
@@ -108,12 +110,16 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
         const bValue = b[sortKey];
         const direction = sortAsc ? 1 : -1;
         if (sortKey === "severity") return (severityOrder[a.severity] - severityOrder[b.severity]) * direction;
+        if (sortKey === "detected") {
+          const freshness: Record<string, number> = { "18 min ago": 0, "46 min ago": 1, "2 hours ago": 2, "4 hours ago": 3, Yesterday: 4, "2 days ago": 5 };
+          return ((freshness[a.detected] ?? 99) - (freshness[b.detected] ?? 99)) * direction;
+        }
         return String(aValue).localeCompare(String(bValue)) * direction;
       });
   }, [filters, globalSearch, severityFilter, sortAsc, sortKey, statusFilter, tableQuery]);
   const hasFilters = filters.region !== "All Regions" || filters.businessUnit !== "All Business Units" || filters.dateRange !== "Last 30 days";
-  const chartShift = filters.region === "All Regions" ? 0 : filters.region === "Europe" ? -0.4 : 0.2;
-  const trend = deliveryTrend.map((point) => ({ ...point, actual: Math.min(99, Math.max(90, point.actual + chartShift)) }));
+  const chartShift = (filters.region === "All Regions" ? 0 : filters.region === "Europe" ? -0.4 : 0.2) + (filters.businessUnit === "Healthcare" ? -0.3 : filters.businessUnit === "Industrial" ? 0.15 : 0) + (filters.dateRange === "Last 7 days" ? -0.2 : filters.dateRange === "Last 90 days" ? 0.25 : 0);
+  const trend = getDeliveryTrend(filters.dateRange, chartShift);
 
   function resetFilters() {
     setFilters(initialFilters);
@@ -173,7 +179,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
         </div>
 
         <div className="dashboard-panel min-w-0">
-          <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">Inventory Health</h2><p className="mt-1 text-xs text-muted-foreground">Network-wide unit distribution</p></div><Button variant="ghost" size="icon" aria-label="Inventory health details" className="size-8"><MoreHorizontal className="size-4" /></Button></div>
+          <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">Inventory Health</h2><p className="mt-1 text-xs text-muted-foreground">Network-wide unit distribution</p></div><span className="rounded-sm bg-secondary px-2 py-1 text-[10px] font-medium text-secondary-foreground">4 categories</span></div>
           <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><span className="text-lg font-semibold text-foreground">26,580</span><span>tracked units</span><span className="ml-auto">by inventory status</span></div>
           <div className="mt-2 h-[196px] min-w-0" role="img" aria-label="Horizontal bar chart showing healthy, at risk, overstocked and stockout inventory units">
             <ResponsiveContainer width="100%" height="100%"><BarChart data={inventoryHealth} layout="vertical" margin={{ top: 4, right: 26, left: 0, bottom: 4 }} barCategoryGap="24%">
@@ -244,7 +250,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
     </main>
   );
 
-  function setSort(field: typeof sortKey) {
+  function setSort(field: SortField) {
     if (sortKey === field) setSortAsc((value) => !value);
     else { setSortKey(field); setSortAsc(true); }
   }
@@ -256,14 +262,17 @@ function FilterSelect({ label, value, options, onChange }: { label: string; valu
 
 function KpiCard({ metric }: { metric: ReturnType<typeof calculateKpis>[number] }) {
   const positiveTrend = metric.positive;
+  const movingUp = metric.direction === "up";
   const icon = metric.icon === "truck" ? <Truck /> : metric.icon === "boxes" ? <Boxes /> : metric.icon === "rotate" ? <RotateCcw /> : <CircleAlert />;
   return <article className="dashboard-panel flex min-h-[144px] flex-col justify-between p-4" aria-label={`${metric.label}: ${metric.value}, ${metric.change} ${positiveTrend ? "favorable" : "requires attention"}`}>
     <div className="flex items-center justify-between gap-2"><span className="text-xs font-medium text-muted-foreground">{metric.label}</span><span className={`grid size-8 place-items-center rounded-sm ${positiveTrend ? "bg-positive-subtle text-positive" : "bg-warning-subtle text-warning"}`}>{icon}</span></div>
-    <div className="mt-3"><div className="text-[27px] font-semibold leading-none tabular-nums">{metric.value}</div><div className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px]"><span className={`inline-flex items-center gap-0.5 font-semibold ${positiveTrend ? "text-positive" : "text-critical"}`}>{positiveTrend ? <ArrowUpRight className="size-3.5" /> : <ArrowDownRight className="size-3.5" />}{metric.change}</span><span className="text-muted-foreground">{metric.note}</span></div></div>
+    <div className="mt-3"><div className="text-[27px] font-semibold leading-none tabular-nums">{metric.value}</div><div className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px]"><span className={`inline-flex items-center gap-0.5 font-semibold ${positiveTrend ? "text-positive" : "text-critical"}`}>{movingUp ? <ArrowUpRight className="size-3.5" /> : <ArrowDownRight className="size-3.5" />}{metric.change}</span><span className="text-muted-foreground">{metric.note}</span></div></div>
   </article>;
 }
 
-function SortableHeader({ label, field, current, asc, onSort }: { label: string; field: "id" | "title" | "category" | "location" | "severity" | "detected" | "status"; current: string; asc: boolean; onSort: (field: typeof field) => void }) {
+type SortField = "id" | "title" | "category" | "location" | "severity" | "detected" | "status";
+
+function SortableHeader({ label, field, current, asc, onSort }: { label: string; field: SortField; current: string; asc: boolean; onSort: (field: SortField) => void }) {
   return <th className="whitespace-nowrap px-3 first:pl-4"><button onClick={() => onSort(field)} className="inline-flex items-center gap-1.5 hover:text-foreground" aria-label={`Sort by ${label}`} aria-sort={current === field ? (asc ? "ascending" : "descending") : "none"}>{label}<span className={`text-[9px] ${current === field ? "text-primary" : "opacity-50"}`}>{current === field ? (asc ? "↑" : "↓") : "↕"}</span></button></th>;
 }
 
@@ -294,11 +303,13 @@ function DetailItem({ label, value }: { label: string; value: string }) {
 }
 
 function DeliveryTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
-  if (!active || !payload?.length) return null;
-  return <div className="rounded-sm border border-border bg-popover px-3 py-2 text-xs shadow-sm"><p className="mb-1.5 font-medium">{label}</p><p className="flex items-center gap-2 text-muted-foreground"><span className="size-2 rounded-full bg-chart-series-1" />On-time delivery <strong className="ml-2 text-foreground">{payload[0].value.toFixed(1)}%</strong></p><p className="mt-1 flex items-center gap-2 text-muted-foreground"><span className="size-2 rounded-full bg-chart-series-3" />Target <strong className="ml-auto text-foreground">95.0%</strong></p></div>;
+  const datum = payload?.[0];
+  if (!active || !datum) return null;
+  return <div className="rounded-sm border border-border bg-popover px-3 py-2 text-xs shadow-sm"><p className="mb-1.5 font-medium">{label}</p><p className="flex items-center gap-2 text-muted-foreground"><span className="size-2 rounded-full bg-chart-series-1" />On-time delivery <strong className="ml-2 text-foreground">{datum.value.toFixed(1)}%</strong></p><p className="mt-1 flex items-center gap-2 text-muted-foreground"><span className="size-2 rounded-full bg-chart-series-3" />Target <strong className="ml-auto text-foreground">95.0%</strong></p></div>;
 }
 
 function InventoryTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: { name: string; units: number } }> }) {
-  if (!active || !payload?.length) return null;
-  return <div className="rounded-sm border border-border bg-popover px-3 py-2 text-xs shadow-sm"><p className="font-medium">{payload[0].payload.name}</p><p className="mt-1 text-muted-foreground">{payload[0].payload.units.toLocaleString()} units</p></div>;
+  const datum = payload?.[0]?.payload;
+  if (!active || !datum) return null;
+  return <div className="rounded-sm border border-border bg-popover px-3 py-2 text-xs shadow-sm"><p className="font-medium">{datum.name}</p><p className="mt-1 text-muted-foreground">{datum.units.toLocaleString()} units</p></div>;
 }

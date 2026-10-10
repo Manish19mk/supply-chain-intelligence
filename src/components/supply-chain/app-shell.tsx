@@ -18,6 +18,7 @@ import {
   Truck,
   UserRound,
   Users,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -41,6 +42,7 @@ export const navigationItems = [
   { label: "Exception Center", to: "/exception-center", icon: ClipboardList },
   { label: "Reports", to: "/reports", icon: FileBarChart },
 ];
+const reportsNavigationItem = { label: "Reports", to: "/reports", icon: FileBarChart };
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -51,6 +53,7 @@ export function AppShell({ children, onGlobalSearch }: AppShellProps) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const currentPage = navigationItems.find((item) => item.to === pathname)?.label ??
     (pathname === "/settings" ? "Settings" : pathname === "/help" ? "Help & Support" : "Workspace");
 
@@ -68,7 +71,7 @@ export function AppShell({ children, onGlobalSearch }: AppShellProps) {
             {navigationItems.slice(0, 6).map((item) => <NavigationItem key={item.to} {...item} collapsed={collapsed} onClick={() => setMobileOpen(false)} />)}
           </nav>
           <p className={`mb-2 mt-7 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground ${collapsed ? "sr-only" : ""}`}>Insights</p>
-          <nav aria-label="Insights navigation"><NavigationItem {...navigationItems[6]} collapsed={collapsed} onClick={() => setMobileOpen(false)} /></nav>
+          <nav aria-label="Insights navigation"><NavigationItem {...reportsNavigationItem} collapsed={collapsed} onClick={() => setMobileOpen(false)} /></nav>
         </div>
         <div className="border-t border-sidebar-border px-3 py-3">
           <NavigationItem label="Settings" to="/settings" icon={Settings} collapsed={collapsed} onClick={() => setMobileOpen(false)} />
@@ -82,7 +85,7 @@ export function AppShell({ children, onGlobalSearch }: AppShellProps) {
       </aside>
 
       <div className={`min-h-screen transition-[margin] duration-200 ${collapsed ? "md:ml-[72px]" : "md:ml-[248px]"}`}>
-        <header className="sticky top-0 z-20 grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur sm:px-6 lg:px-8">
+        <header className={`sticky top-0 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur sm:h-16 sm:py-0 sm:px-6 lg:px-8 ${mobileSearchOpen ? "h-auto" : "h-16"}`}>
           <div className="flex min-w-0 items-center gap-3">
             <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open navigation" onClick={() => setMobileOpen(true)}><Menu /></Button>
             <div className="hidden min-w-0 items-center gap-2 text-sm sm:flex"><span className="text-muted-foreground">Workspace</span><span className="text-border">/</span><span className="truncate font-medium">{currentPage}</span></div>
@@ -91,7 +94,7 @@ export function AppShell({ children, onGlobalSearch }: AppShellProps) {
             <div className="relative w-full"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input aria-label="Search exceptions" placeholder="Search exceptions..." onChange={(event) => onGlobalSearch?.(event.target.value)} className="h-9 border-border bg-muted/50 pl-9 pr-14 text-sm" /><kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded border border-border bg-background px-1.5 py-0.5 text-[10px] text-muted-foreground">⌘ K</kbd></div>
           </div>
           <div className="flex items-center justify-end gap-1.5">
-            <div className="sm:hidden"><Button variant="ghost" size="icon" aria-label="Search exceptions" onClick={() => document.getElementById("mobile-search")?.focus()}><Search /></Button></div>
+            <div className="sm:hidden"><Button variant="ghost" size="icon" aria-label={mobileSearchOpen ? "Close search" : "Search exceptions"} onClick={() => setMobileSearchOpen((open) => !open)}>{mobileSearchOpen ? <X /> : <Search />}</Button></div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label="Notifications" className="relative"><Bell /><span className="absolute right-2 top-2 size-2 rounded-full border-2 border-background bg-destructive" /></Button></DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
@@ -106,7 +109,7 @@ export function AppShell({ children, onGlobalSearch }: AppShellProps) {
               <DropdownMenuContent align="end" className="w-52"><DropdownMenuLabel><span className="block">Morgan Carter</span><span className="text-xs font-normal text-muted-foreground">Supply Chain Manager</span></DropdownMenuLabel><DropdownMenuSeparator /><DropdownMenuItem><UserRound />My profile</DropdownMenuItem><DropdownMenuItem asChild><Link to="/settings"><Settings />Settings</Link></DropdownMenuItem></DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <Input id="mobile-search" aria-label="Search exceptions" placeholder="Search exceptions..." onChange={(event) => onGlobalSearch?.(event.target.value)} className="col-span-3 h-9 sm:hidden" />
+          {mobileSearchOpen && <Input id="mobile-search" aria-label="Search exceptions" placeholder="Search exceptions..." onChange={(event) => onGlobalSearch?.(event.target.value)} className="col-span-3 h-9 sm:hidden" />}
         </header>
         {children}
       </div>
