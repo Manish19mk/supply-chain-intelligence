@@ -189,11 +189,13 @@ export function calculateKpis(filters: DashboardFilters) {
   const unitShift = filters.businessUnit === "All Business Units" ? 0 : filters.businessUnit === "Healthcare" ? -0.3 : 0.1;
   const rangeShift = filters.dateRange === "Last 7 days" ? -0.5 : filters.dateRange === "Last 90 days" ? 0.3 : 0;
   const shift = regionShift + unitShift + rangeShift;
+  const periodObservations = getDeliveryTrend(filters.dateRange);
+  const periodAverage = periodObservations.reduce((total, point) => total + point.actual, 0) / periodObservations.length;
 
   return [
-    { label: "On-Time Delivery", value: `${(94.2 + shift).toFixed(1)}%`, change: "+1.8%", direction: "up", positive: true, note: "vs. previous period", icon: "truck" },
-    { label: "Fill Rate", value: `${(96.8 + shift / 2).toFixed(1)}%`, change: "+0.6%", direction: "up", positive: true, note: "vs. previous period", icon: "boxes" },
-    { label: "Inventory Turns", value: `${(8.4 + shift / 10).toFixed(1)}x`, change: "−0.3x", direction: "down", positive: false, note: "vs. previous period", icon: "rotate" },
-    { label: "Stockout Rate", value: `${(2.7 - shift / 5).toFixed(1)}%`, change: "+0.4 pp", direction: "up", positive: false, note: "vs. previous period", icon: "alert" },
+    { label: "On-Time Delivery", value: `${periodAverage.toFixed(1)}%`, change: "+1.8%", direction: "up", positive: true, note: "vs. previous period", detail: `Reporting-period average · ${periodObservations.length} observations`, changeMeaning: "relative percent change", icon: "truck" },
+    { label: "Fill Rate", value: `${(96.8 + shift / 2).toFixed(1)}%`, change: "+0.6%", direction: "up", positive: true, note: "vs. previous period", changeMeaning: "relative percent change", icon: "boxes" },
+    { label: "Inventory Turns", value: `${(8.4 + shift / 10).toFixed(1)}x`, change: "−0.3x", direction: "down", positive: false, note: "vs. previous period", changeMeaning: "turns change", icon: "rotate" },
+    { label: "Stockout Rate", value: `${(2.7 - shift / 5).toFixed(1)}%`, change: "+0.4 pp", direction: "up", positive: false, note: "vs. previous period", changeMeaning: "percentage-point change", icon: "alert" },
   ];
 }
