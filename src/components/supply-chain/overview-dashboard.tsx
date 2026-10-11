@@ -69,6 +69,7 @@ import {
   exceptions,
   filterExceptions,
   regions,
+  sampleDataSnapshot,
   type DashboardFilters,
   type ExceptionStatus,
   type Severity,
@@ -120,12 +121,13 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
       });
   }, [filters, globalSearch, severityFilter, sortAsc, sortKey, statusFilter, statusOverrides, tableQuery]);
   const hasFilters = filters.region !== "All Regions" || filters.businessUnit !== "All Business Units" || filters.dateRange !== "Last 30 days";
-  const chartShift = (filters.region === "All Regions" ? 0 : filters.region === "Europe" ? -0.4 : 0.2) + (filters.businessUnit === "Healthcare" ? -0.3 : filters.businessUnit === "Industrial" ? 0.15 : 0) + (filters.dateRange === "Last 7 days" ? -0.2 : filters.dateRange === "Last 90 days" ? 0.25 : 0);
-  const trend = getDeliveryTrend(filters.dateRange, chartShift);
+  const trend = getDeliveryTrend(filters.dateRange);
   const inventory = getInventoryHealth(filters.region, filters.businessUnit);
   const inventoryTotal = inventory.reduce((total, category) => total + category.units, 0);
   const trendStart = trend[0]?.day;
   const trendEnd = trend.at(-1)?.day;
+  const latestDelivery = trend.at(-1)?.actual.toFixed(1) ?? "—";
+  const snapshotLabel = `${new Date(sampleDataSnapshot).toLocaleString("en-US", { month: "short", day: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" })} UTC`;
 
   function resetFilters() {
     setFilters(initialFilters);
@@ -161,7 +163,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
         <FilterSelect label="Region" value={filters.region} options={regions} onChange={(value) => setFilters((current) => ({ ...current, region: value }))} />
         <FilterSelect label="Business unit" value={filters.businessUnit} options={businessUnits} onChange={(value) => setFilters((current) => ({ ...current, businessUnit: value }))} />
         {hasFilters && <Button variant="ghost" size="sm" onClick={resetFilters} className="h-8 gap-1.5 px-2 text-xs"><FilterX className="size-3.5" />Reset filters</Button>}
-        <span className="ml-auto hidden text-xs text-muted-foreground lg:inline">Illustrative snapshot · Apr 30, 2026, 09:42 UTC</span>
+        <span className="ml-auto hidden text-xs text-muted-foreground lg:inline">Illustrative snapshot · {snapshotLabel}</span>
       </section>
 
       <section aria-label="Key performance indicators" className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -170,7 +172,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
 
       <section aria-label="Supply chain analytics" className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(360px,1fr)]">
         <div className="dashboard-panel min-w-0">
-          <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">On-Time Delivery Trend</h2><p className="mt-1 text-xs text-muted-foreground">Selected: {filters.dateRange} · {trend.length} source observations · {trendStart}–{trendEnd}</p></div><span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-positive-subtle px-2 py-1 text-xs font-medium text-positive"><TrendingUp className="size-3.5" />94.2%</span></div>
+          <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">On-Time Delivery Trend</h2><p className="mt-1 text-xs text-muted-foreground">Selected: {filters.dateRange} · {trend.length} source observations · {trendStart}–{trendEnd}</p></div><span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-positive-subtle px-2 py-1 text-xs font-medium text-positive"><TrendingUp className="size-3.5" />{latestDelivery}% latest</span></div>
           <div className="mt-4 h-[238px] min-w-0" role="img" aria-label="Line chart showing on-time delivery trend against a 95 percent target">
             <ResponsiveContainer width="100%" height="100%"><LineChart data={trend} margin={{ top: 10, right: 8, left: -21, bottom: 0 }}>
               <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="3 4" vertical={false} />
@@ -178,7 +180,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
               <YAxis domain={[90, 98]} ticks={[90, 92, 94, 96, 98]} tickFormatter={(value) => `${value}%`} tick={{ fill: "var(--chart-label)", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip content={<DeliveryTooltip />} />
               <ReferenceLine y={95} stroke="var(--warning)" strokeDasharray="5 4" label={{ value: "95% target", fill: "var(--warning)", fontSize: 10, position: "insideTopRight" }} />
-              <Line type="monotone" dataKey="actual" name="On-time delivery" stroke="var(--primary)" strokeWidth={3} dot={{ r: 2.5, fill: "var(--primary)", stroke: "var(--card)", strokeWidth: 1 }} activeDot={{ r: 4, fill: "var(--primary)", stroke: "var(--background)", strokeWidth: 2 }} />
+              <Line type="monotone" dataKey="actual" name="On-time delivery" stroke="var(--primary)" strokeWidth={3} dot={{ r: 2.5, fill: "var(--primary)", stroke: "var(--card)", strokeWidth: 1 }} activeDot={{ r: 4, fill: "var(--primary)", stroke: "var(--background)", strokeWidth: 2 }} isAnimationActive={false} />
             </LineChart></ResponsiveContainer>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-3 text-xs text-muted-foreground"><span className="inline-flex items-center gap-2"><i className="h-0.5 w-4 rounded bg-primary" />Actual delivery</span><span className="inline-flex items-center gap-2"><i className="w-4 border-t border-dashed border-warning" />95% target</span><span className="ml-auto inline-flex items-center gap-1"><ArrowUpRight className="size-3.5 text-positive" />+1.8% from prior period</span></div>
@@ -193,7 +195,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
               <XAxis type="number" tickFormatter={(value) => `${Math.round(value / 1000)}k`} tick={{ fill: "var(--chart-label)", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="name" width={90} tick={{ fill: "var(--chart-label)", fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<InventoryTooltip />} cursor={{ fill: "var(--chart-grid)" }} />
-              <Bar dataKey="units" name="Units" radius={[0, 3, 3, 0]} maxBarSize={24} label={{ position: "right", fill: "var(--chart-label)", fontSize: 10, formatter: (value: number) => value.toLocaleString() }}>{inventory.map((item) => <Cell key={item.name} fill={item.fill} />)}</Bar>
+              <Bar dataKey="units" name="Units" radius={[0, 3, 3, 0]} maxBarSize={24} isAnimationActive={false} label={{ position: "right", fill: "var(--chart-label)", fontSize: 10, formatter: (value: number) => value.toLocaleString() }}>{inventory.map((item) => <Cell key={item.name} fill={item.fill} />)}</Bar>
             </BarChart></ResponsiveContainer>
           </div>
           <div className="grid grid-cols-2 gap-x-3 gap-y-2 border-t border-border pt-3">
@@ -246,7 +248,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
         </> : <div className="flex min-h-[230px] flex-col items-center justify-center px-6 text-center"><div className="grid size-10 place-items-center rounded-md bg-muted"><Search className="size-5 text-muted-foreground" /></div><h3 className="mt-3 text-sm font-semibold">No exceptions found</h3><p className="mt-1 max-w-sm text-xs text-muted-foreground">Try a different search or adjust the active filters to see more results.</p><Button variant="ghost" size="sm" className="mt-3 gap-1.5 text-xs" onClick={() => { setTableQuery(""); setSeverityFilter("All Severities"); setStatusFilter("All Statuses"); onGlobalSearch(""); }}><RotateCcw className="size-3.5" />Clear table filters</Button></div>}
       </section>
 
-      <div className="mt-5 flex items-center justify-between gap-4 text-[11px] text-muted-foreground"><span className="inline-flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-positive" />All systems operational</span><span>Illustrative observations · Apr 01–29, 2026 · Snapshot Apr 30, 2026, 09:42 UTC</span></div>
+      <div className="mt-5 flex items-center justify-between gap-4 text-[11px] text-muted-foreground"><span className="inline-flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-positive" />All systems operational</span><span>Illustrative observations · Apr 01–29, 2026 · Snapshot {snapshotLabel}</span></div>
 
       <Sheet open={activeException !== null} onOpenChange={(open) => { if (!open) setActiveException(null); }}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-[440px]">
