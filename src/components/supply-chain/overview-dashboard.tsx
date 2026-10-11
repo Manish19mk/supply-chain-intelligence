@@ -22,7 +22,7 @@ import {
   Truck,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -92,6 +92,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
   const [sortKey, setSortKey] = useState<"id" | "title" | "category" | "location" | "severity" | "detected" | "status">("detected");
   const [sortAsc, setSortAsc] = useState(true);
   const [showAll, setShowAll] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [activeException, setActiveException] = useState<SupplyChainException | null>(null);
   const [drawerMode, setDrawerMode] = useState<"details" | "investigate">("details");
   const [owners, setOwners] = useState<Record<string, string>>({});
@@ -120,7 +121,15 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
         return String(aValue).localeCompare(String(bValue)) * direction;
       });
   }, [filters, globalSearch, severityFilter, sortAsc, sortKey, statusFilter, statusOverrides, tableQuery]);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, globalSearch, severityFilter, statusFilter, tableQuery]);
   const hasFilters = filters.region !== "All Regions" || filters.businessUnit !== "All Business Units" || filters.dateRange !== "Last 30 days";
+  const pageSize = 5;
+  const pageCount = Math.max(1, Math.ceil(visibleExceptions.length / pageSize));
+  const effectivePage = Math.min(currentPage, pageCount);
+  const pageStart = (effectivePage - 1) * pageSize;
+  const exceptionsToShow = showAll ? visibleExceptions : visibleExceptions.slice(pageStart, pageStart + pageSize);
   const trend = getDeliveryTrend(filters.dateRange);
   const inventory = getInventoryHealth(filters.region, filters.businessUnit);
   const inventoryTotal = inventory.reduce((total, category) => total + category.units, 0);
@@ -172,7 +181,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
 
       <section aria-label="Supply chain analytics" className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(360px,1fr)]">
         <div className="dashboard-panel min-w-0">
-          <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">On-Time Delivery Trend</h2><p className="mt-1 text-xs text-muted-foreground">Selected: {filters.dateRange} · {trend.length} source observations · {trendStart}–{trendEnd}</p></div><span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-positive-subtle px-2 py-1 text-xs font-medium text-positive"><TrendingUp className="size-3.5" />{latestDelivery}% latest</span></div>
+          <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">On-Time Delivery Trend</h2><p className="mt-1 text-xs text-muted-foreground">Selected: {filters.dateRange} · {trend.length} source observations · sample coverage {trendStart}–{trendEnd} · every 2 days</p></div><span className="inline-flex shrink-0 items-center gap-1.5 rounded-sm bg-positive-subtle px-2 py-1 text-xs font-medium text-positive"><TrendingUp className="size-3.5" />Latest observation · {latestDelivery}%</span></div>
           <div className="mt-4 h-[238px] min-w-0" role="img" aria-label="Line chart showing on-time delivery trend against a 95 percent target">
             <ResponsiveContainer width="100%" height="100%"><LineChart data={trend} margin={{ top: 10, right: 8, left: -21, bottom: 0 }}>
               <CartesianGrid stroke="var(--chart-grid)" strokeDasharray="3 4" vertical={false} />
@@ -228,7 +237,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
                 <th className="w-12 px-3 text-right font-semibold">Actions</th>
               </tr></thead>
               <tbody className="divide-y divide-border">
-                {visibleExceptions.slice(0, showAll ? undefined : 5).map((record) => <tr key={record.id} className="group h-[58px] transition-colors hover:bg-muted/30">
+                {exceptionsToShow.map((record) => <tr key={record.id} className="group h-[58px] transition-colors hover:bg-muted/30">
                   <td className="whitespace-nowrap px-4"><button className="font-medium text-primary hover:underline" onClick={() => openDrawer(record, "details")}>{record.id}</button></td>
                   <td className="max-w-[310px] px-3"><button className="block max-w-full truncate text-left font-medium text-foreground hover:text-primary" onClick={() => openDrawer(record, "details")}>{record.title}</button><span className="mt-1 block truncate text-[10px] text-muted-foreground">{record.impact}</span></td>
                   <td className="whitespace-nowrap px-3 text-muted-foreground">{record.category}</td>
@@ -242,8 +251,8 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
             </table>
           </div>
           <div className="flex flex-col gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-            <p className="text-xs text-muted-foreground">Showing <span className="font-medium text-foreground">{Math.min(showAll ? visibleExceptions.length : 5, visibleExceptions.length)}</span> of <span className="font-medium text-foreground">{visibleExceptions.length}</span> exceptions{filters.region !== "All Regions" ? ` · ${filters.region}` : ""}</p>
-            <div className="flex items-center gap-2"><Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" disabled><ChevronLeft className="size-3.5" />Previous</Button>{visibleExceptions.length > 5 && <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => setShowAll(!showAll)}>{showAll ? "Show less" : "Show all"}<ChevronDown className={`size-3.5 transition-transform ${showAll ? "rotate-180" : ""}`} /></Button>}<Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" disabled><span className="hidden sm:inline">Next</span><ChevronRight className="size-3.5" /></Button></div>
+            <p className="text-xs text-muted-foreground">Showing <span className="font-medium text-foreground">{visibleExceptions.length === 0 ? 0 : showAll ? 1 : pageStart + 1}–{showAll ? visibleExceptions.length : Math.min(pageStart + pageSize, visibleExceptions.length)}</span> of <span className="font-medium text-foreground">{visibleExceptions.length}</span> exceptions{filters.region !== "All Regions" ? ` · ${filters.region}` : ""}</p>
+            <div className="flex items-center gap-2"><Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" disabled={showAll || effectivePage <= 1} onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}><ChevronLeft className="size-3.5" />Previous</Button>{visibleExceptions.length > pageSize && <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => { setShowAll(!showAll); setCurrentPage(1); }}>{showAll ? "Show less" : "Show all"}<ChevronDown className={`size-3.5 transition-transform ${showAll ? "rotate-180" : ""}`} /></Button>}<Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" disabled={showAll || effectivePage >= pageCount} onClick={() => setCurrentPage((page) => Math.min(pageCount, page + 1))}><span className="hidden sm:inline">Next</span><ChevronRight className="size-3.5" /></Button></div>
           </div>
         </> : <div className="flex min-h-[230px] flex-col items-center justify-center px-6 text-center"><div className="grid size-10 place-items-center rounded-md bg-muted"><Search className="size-5 text-muted-foreground" /></div><h3 className="mt-3 text-sm font-semibold">No exceptions found</h3><p className="mt-1 max-w-sm text-xs text-muted-foreground">Try a different search or adjust the active filters to see more results.</p><Button variant="ghost" size="sm" className="mt-3 gap-1.5 text-xs" onClick={() => { setTableQuery(""); setSeverityFilter("All Severities"); setStatusFilter("All Statuses"); onGlobalSearch(""); }}><RotateCcw className="size-3.5" />Clear table filters</Button></div>}
       </section>
@@ -272,9 +281,9 @@ function KpiCard({ metric }: { metric: ReturnType<typeof calculateKpis>[number] 
   const positiveTrend = metric.positive;
   const movingUp = metric.direction === "up";
   const icon = metric.icon === "truck" ? <Truck /> : metric.icon === "boxes" ? <Boxes /> : metric.icon === "rotate" ? <RotateCcw /> : <CircleAlert />;
-  return <article className="dashboard-panel flex min-h-[144px] flex-col justify-between p-4" aria-label={`${metric.label}: ${metric.value}, ${metric.change} ${positiveTrend ? "favorable" : "requires attention"}`}>
+  return <article className="dashboard-panel flex min-h-[144px] flex-col justify-between p-4" aria-label={`${metric.label}: ${metric.value}, ${metric.change} ${metric.changeMeaning}, ${positiveTrend ? "favorable" : "requires attention"}`}>
     <div className="flex items-center justify-between gap-2"><span className="text-xs font-medium text-muted-foreground">{metric.label}</span><span className={`grid size-8 place-items-center rounded-sm ${positiveTrend ? "bg-positive-subtle text-positive" : "bg-warning-subtle text-warning"}`}>{icon}</span></div>
-    <div className="mt-3"><div className="text-[27px] font-semibold leading-none tabular-nums">{metric.value}</div><div className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px]"><span className={`inline-flex items-center gap-0.5 font-semibold ${positiveTrend ? "text-positive" : "text-critical"}`}>{movingUp ? <ArrowUpRight className="size-3.5" /> : <ArrowDownRight className="size-3.5" />}{metric.change}</span><span className="text-muted-foreground">{metric.note}</span></div></div>
+    <div className="mt-3"><div className="text-[27px] font-semibold leading-none tabular-nums">{metric.value}</div>{metric.detail && <div className="mt-1.5 text-[10px] text-muted-foreground">{metric.detail}</div>}<div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px]"><span className={`inline-flex items-center gap-0.5 font-semibold ${positiveTrend ? "text-positive" : "text-critical"}`}>{movingUp ? <ArrowUpRight className="size-3.5" /> : <ArrowDownRight className="size-3.5" />}{metric.change}</span><span className="text-muted-foreground">{metric.note}</span></div></div>
   </article>;
 }
 

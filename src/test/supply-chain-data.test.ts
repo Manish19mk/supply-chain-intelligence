@@ -4,7 +4,7 @@ import { calculateKpis, deliveryTrend, exceptions, filterExceptions, getDelivery
 describe("supply chain overview mock data", () => {
   it("shows the four specified default KPI values", () => {
     expect(calculateKpis({ dateRange: "Last 30 days", region: "All Regions", businessUnit: "All Business Units" }).map((metric) => [metric.label, metric.value, metric.change])).toEqual([
-      ["On-Time Delivery", "94.2%", "+1.8%"],
+      ["On-Time Delivery", "94.3%", "+1.8%"],
       ["Fill Rate", "96.8%", "+0.6%"],
       ["Inventory Turns", "8.4x", "−0.3x"],
       ["Stockout Rate", "2.7%", "+0.4 pp"],
@@ -21,6 +21,13 @@ describe("supply chain overview mock data", () => {
     const metrics = calculateKpis({ dateRange: "Last 30 days", region: "All Regions", businessUnit: "All Business Units" });
     expect(metrics.map((metric) => metric.positive)).toEqual([true, true, false, false]);
     expect(metrics.map((metric) => metric.direction)).toEqual(["up", "up", "down", "up"]);
+    expect(metrics.map((metric) => metric.changeMeaning)).toEqual(["relative percent change", "relative percent change", "turns change", "percentage-point change"]);
+  });
+
+  it("derives the delivery KPI from observations in the selected range", () => {
+    const filters = { region: "All Regions", businessUnit: "All Business Units" };
+    expect(calculateKpis({ ...filters, dateRange: "Last 30 days" })[0]?.value).toBe("94.3%");
+    expect(calculateKpis({ ...filters, dateRange: "Last 7 days" })[0]?.value).toBe("95.1%");
   });
 
   it("keeps delivery observations on their source dates while applying the selected date range", () => {
