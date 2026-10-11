@@ -127,9 +127,12 @@ export const deliveryTrend = [
   { day: "Apr 29", actual: 94.9 },
 ];
 
-export function getDeliveryTrend(range: string, adjustment: number) {
+export const sampleDataSnapshot = "2026-04-30T09:42:00Z";
+
+export function getDeliveryTrend(range: string) {
   const rangeDays = range === "Last 7 days" ? 7 : range === "Last 90 days" ? 90 : 30;
-  const snapshotDate = Date.UTC(2026, 3, 30);
+  const snapshot = new Date(sampleDataSnapshot);
+  const snapshotDate = Date.UTC(snapshot.getUTCFullYear(), snapshot.getUTCMonth(), snapshot.getUTCDate());
   const dayInMilliseconds = 24 * 60 * 60 * 1000;
 
   return deliveryTrend
@@ -140,7 +143,7 @@ export function getDeliveryTrend(range: string, adjustment: number) {
       const pointDate = Date.UTC(2026, monthNumber, Number(day));
       return snapshotDate - pointDate < rangeDays * dayInMilliseconds;
     })
-    .map((point) => ({ ...point, actual: Math.min(99, Math.max(90, point.actual + adjustment)) }));
+    .map((point) => ({ ...point }));
 }
 
 export const inventoryHealth = [

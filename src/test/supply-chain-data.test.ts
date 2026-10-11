@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateKpis, deliveryTrend, exceptions, filterExceptions, getDeliveryTrend, getInventoryHealth, inventoryHealth } from "@/data/supply-chain";
+import { calculateKpis, deliveryTrend, exceptions, filterExceptions, getDeliveryTrend, getInventoryHealth, inventoryHealth, sampleDataSnapshot } from "@/data/supply-chain";
 
 describe("supply chain overview mock data", () => {
   it("shows the four specified default KPI values", () => {
@@ -24,13 +24,19 @@ describe("supply chain overview mock data", () => {
   });
 
   it("keeps delivery observations on their source dates while applying the selected date range", () => {
-    const week = getDeliveryTrend("Last 7 days", 0);
-    const month = getDeliveryTrend("Last 30 days", 0);
-    const quarter = getDeliveryTrend("Last 90 days", 0);
+    const week = getDeliveryTrend("Last 7 days");
+    const month = getDeliveryTrend("Last 30 days");
+    const quarter = getDeliveryTrend("Last 90 days");
     expect(week.map((point) => point.day)).toEqual(["Apr 25", "Apr 27", "Apr 29"]);
     expect(week.map((point) => point.actual)).toEqual([94.8, 95.6, 94.9]);
     expect(month.map((point) => point.day)).toEqual(deliveryTrend.map((point) => point.day));
     expect(quarter).toEqual(month);
+  });
+
+  it("keeps the source observation period consistent with its illustrative snapshot timestamp", () => {
+    expect(sampleDataSnapshot).toBe("2026-04-30T09:42:00Z");
+    expect(new Date(sampleDataSnapshot).getTime()).toBeGreaterThan(Date.UTC(2026, 3, 29));
+    expect(getDeliveryTrend("Last 30 days").at(-1)?.day).toBe("Apr 29");
   });
 
   it("uses semantic category colors and calculates tracked units from the four inventory values", () => {
