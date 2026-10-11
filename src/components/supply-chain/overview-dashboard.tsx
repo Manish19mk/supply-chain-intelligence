@@ -178,7 +178,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
               <YAxis domain={[90, 98]} ticks={[90, 92, 94, 96, 98]} tickFormatter={(value) => `${value}%`} tick={{ fill: "var(--chart-label)", fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip content={<DeliveryTooltip />} />
               <ReferenceLine y={95} stroke="var(--warning)" strokeDasharray="5 4" label={{ value: "95% target", fill: "var(--warning)", fontSize: 10, position: "insideTopRight" }} />
-              <Line type="monotone" dataKey="actual" name="On-time delivery" stroke="var(--primary)" strokeWidth={3} dot={{ r: 2.5, fill: "var(--primary)", stroke: "var(--card)", strokeWidth: 1 }} activeDot={{ r: 4, fill: "var(--primary)", stroke: "var(--background)", strokeWidth: 2 }} />
+              <Line type="monotone" dataKey="actual" name="On-time delivery" stroke="var(--primary)" strokeWidth={3} dot={{ r: 2.5, fill: "var(--primary)", stroke: "var(--card)", strokeWidth: 1 }} activeDot={{ r: 4, fill: "var(--primary)", stroke: "var(--background)", strokeWidth: 2 }} isAnimationActive={false} />
             </LineChart></ResponsiveContainer>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-3 text-xs text-muted-foreground"><span className="inline-flex items-center gap-2"><i className="h-0.5 w-4 rounded bg-primary" />Actual delivery</span><span className="inline-flex items-center gap-2"><i className="w-4 border-t border-dashed border-warning" />95% target</span><span className="ml-auto inline-flex items-center gap-1"><ArrowUpRight className="size-3.5 text-positive" />+1.8% from prior period</span></div>
@@ -193,7 +193,7 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
               <XAxis type="number" tickFormatter={(value) => `${Math.round(value / 1000)}k`} tick={{ fill: "var(--chart-label)", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="name" width={90} tick={{ fill: "var(--chart-label)", fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<InventoryTooltip />} cursor={{ fill: "var(--chart-grid)" }} />
-              <Bar dataKey="units" name="Units" radius={[0, 3, 3, 0]} maxBarSize={24} label={{ position: "right", fill: "var(--chart-label)", fontSize: 10, formatter: (value: number) => value.toLocaleString() }}>{inventory.map((item) => <Cell key={item.name} fill={item.fill} />)}</Bar>
+              <Bar dataKey="units" name="Units" radius={[0, 3, 3, 0]} maxBarSize={24} isAnimationActive={false} label={{ position: "right", fill: "var(--chart-label)", fontSize: 10, formatter: (value: number) => value.toLocaleString() }}>{inventory.map((item) => <Cell key={item.name} fill={item.fill} />)}</Bar>
             </BarChart></ResponsiveContainer>
           </div>
           <div className="grid grid-cols-2 gap-x-3 gap-y-2 border-t border-border pt-3">
