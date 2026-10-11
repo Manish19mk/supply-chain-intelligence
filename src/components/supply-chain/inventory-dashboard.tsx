@@ -177,7 +177,7 @@ export function InventoryDashboard() {
           <h1 className="text-[25px] font-semibold leading-tight sm:text-[27px]">
             Inventory Intelligence
           </h1>
-          <p className="mt-2 max-w-[650px] text-sm leading-5 text-muted-foreground">
+          <p className="mt-2 max-w-[660px] text-sm leading-5 text-muted-foreground">
             Understand inventory health, identify stock risks, and prioritize
             replenishment across your network.
           </p>
@@ -289,7 +289,7 @@ export function InventoryDashboard() {
             <div>
               <h2 className="text-sm font-semibold">Inventory Health</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Network-wide distribution by status
+                Full-network distribution · Independent of table filters
               </p>
             </div>
             <span className="rounded-sm bg-secondary px-2 py-1 text-[10px] font-medium text-secondary-foreground">
@@ -303,7 +303,7 @@ export function InventoryDashboard() {
                 .reduce((sum, item) => sum + item.units, 0)
                 .toLocaleString("en-US")}
             </span>
-            tracked units
+            network-wide units
           </div>
 
           <div
@@ -371,7 +371,7 @@ export function InventoryDashboard() {
           <div>
             <h2 className="text-sm font-semibold">Inventory Status Trend</h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              Illustrative share of inventory by weekly status
+              Illustrative weekly trend · Full network
             </p>
           </div>
 

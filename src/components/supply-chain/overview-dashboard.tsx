@@ -104,7 +104,12 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
     const workspaceSearch = globalSearch.trim().toLowerCase();
     const severityOrder: Record<Severity, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
     return filterExceptions(exceptions, filters)
-      .map((record) => ({ ...record, status: statusOverrides[record.id] ?? record.status }))
+
+.map((record) => ({
+  ...record,
+  owner: owners[record.id] ?? record.owner,
+  status: statusOverrides[record.id] ?? record.status,
+}))
       .filter((record) => !tableSearch || `${record.id} ${record.title} ${record.location}`.toLowerCase().includes(tableSearch))
       .filter((record) => !workspaceSearch || `${record.id} ${record.title} ${record.location}`.toLowerCase().includes(workspaceSearch))
       .filter((record) => severityFilter === "All Severities" || record.severity === severityFilter)
@@ -138,11 +143,20 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
   const latestDelivery = trend.at(-1)?.actual.toFixed(1) ?? "—";
   const snapshotLabel = `${new Date(sampleDataSnapshot).toLocaleString("en-US", { month: "short", day: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" })} UTC`;
 
-  function resetFilters() {
-    setFilters(initialFilters);
-    setTableQuery("");
-    onGlobalSearch("");
-  }
+  
+function resetFilters() {
+  setFilters(initialFilters);
+  setTableQuery("");
+  setSeverityFilter("All Severities");
+  setStatusFilter("All Statuses");
+  setSortKey("detected");
+  setSortAsc(true);
+  setShowAll(false);
+  setCurrentPage(1);
+  setActiveException(null);
+  onGlobalSearch("");
+}
+
 
   function updateOwner(record: SupplyChainException, owner: string) {
     setOwners((current) => ({ ...current, [record.id]: owner }));
@@ -150,10 +164,19 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
     window.setTimeout(() => setAssignmentMessage(""), 2600);
   }
 
-  function openDrawer(record: SupplyChainException, mode: "details" | "investigate") {
-    setActiveException(record);
-    setDrawerMode(mode);
-  }
+  
+function openDrawer(
+  record: SupplyChainException,
+  mode: "details" | "investigate",
+) {
+  setActiveException({
+    ...record,
+    owner: owners[record.id] ?? record.owner,
+    status: statusOverrides[record.id] ?? record.status,
+  });
+  setDrawerMode(mode);
+}
+
 
   return (
     <main className="mx-auto max-w-[1540px] px-4 pb-10 pt-7 sm:px-6 lg:px-8">
@@ -196,7 +219,16 @@ export function OverviewDashboard({ globalSearch = "", onGlobalSearch }: Props) 
         </div>
 
         <div className="dashboard-panel min-w-0">
-          <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">Inventory Health</h2><p className="mt-1 text-xs text-muted-foreground">Network-wide unit distribution</p></div><span className="rounded-sm bg-secondary px-2 py-1 text-[10px] font-medium text-secondary-foreground">4 categories</span></div>
+          <div className="flex items-start justify-between gap-3"><div><h2 className="text-sm font-semibold">Inventory Health</h2><p className="mt-1 text-xs text-muted-foreground">
+  {filters.region === "All Regions" &&
+  filters.businessUnit === "All Business Units"
+    ? "Network-wide unit distribution"
+    : `${filters.region === "All Regions" ? "All regions" : filters.region} · ${
+        filters.businessUnit === "All Business Units"
+          ? "All business units"
+          : filters.businessUnit
+      }`}
+</p></div><span className="rounded-sm bg-secondary px-2 py-1 text-[10px] font-medium text-secondary-foreground">4 categories</span></div>
           <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><span className="text-lg font-semibold text-foreground">{inventoryTotal.toLocaleString()}</span><span>tracked units</span><span className="ml-auto">by inventory status</span></div>
           <div className="mt-2 h-[196px] min-w-0" role="img" aria-label="Horizontal bar chart showing healthy, at risk, overstocked and stockout inventory units">
             <ResponsiveContainer width="100%" height="100%"><BarChart data={inventory} layout="vertical" margin={{ top: 4, right: 26, left: 0, bottom: 4 }} barCategoryGap="24%">
