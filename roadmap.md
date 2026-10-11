@@ -2,3 +2,4 @@
 - [x] Verify dashboard controls and desktop/narrow-screen layouts in the browser.
 - [x] Run the available tests and production build; resolve any errors.
 - [x] Refine delivery and inventory charts, reconcile illustrative reporting dates, and revalidate dashboard interactions.
+- [ ] Validate KPI semantics and the full set of Overview interactions from the final review.
