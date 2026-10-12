@@ -1,8 +1,22 @@
+
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/supply-chain/app-shell";
-import { PlannedModulePage } from "@/components/supply-chain/planned-module-page";
+import { SupplierPerformanceDashboard } from "@/components/supply-chain/supplier-performance-dashboard";
 
 export const Route = createFileRoute("/supplier-performance")({
-  head: () => ({ meta: [{ title: "Supplier Performance | Supply Chain Intelligence" }, { name: "description", content: "Explore supplier reliability and delivery performance in a future Supply Chain Intelligence module." }, { property: "og:title", content: "Supplier Performance | Supply Chain Intelligence" }, { property: "og:description", content: "Explore supplier reliability and delivery performance in a future Supply Chain Intelligence module." }] }),
-  component: () => <AppShell><PlannedModulePage title="Supplier Performance" description="Supplier reliability, shipment performance, and delivery risks across sourcing partners." /></AppShell>,
+  head: () => ({
+    meta: [
+      { title: "Supplier Performance | Supply Chain Intelligence" },
+      {
+        name: "description",
+        content:
+          "Monitor supplier delivery reliability, quality, lead times, and sourcing risks.",
+      },
+    ],
+  }),
+  component: () => (
+    <AppShell>
+      <SupplierPerformanceDashboard />
+    </AppShell>
+  ),
 });
