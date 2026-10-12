@@ -15,10 +15,12 @@ import {
   FilterX,
   MoreHorizontal,
   PackageCheck,
+  RefreshCw,
   RotateCcw,
   Search,
   SlidersHorizontal,
   TrendingUp,
+  PackageX,
   Truck,
   X,
 } from "lucide-react";
@@ -180,13 +182,16 @@ function openDrawer(
 
   return (
     <main className="mx-auto max-w-[1540px] px-4 pb-10 pt-7 sm:px-6 lg:px-8">
+      <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground"><span>Workspace</span><ArrowRight className="size-3" /><span className="text-foreground">Overview</span></div>
       <div className="flex min-w-0 flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground"><span>Workspace</span><ChevronRight className="size-3" /><span className="text-foreground">Overview</span></div>
+          
           <h1 className="text-[25px] font-semibold leading-tight tracking-normal sm:text-[27px]">Supply Chain Overview</h1>
           <p className="mt-2 max-w-[650px] text-sm leading-5 text-muted-foreground">Monitor network performance, identify risks, and prioritize operational action.</p>
         </div>
-        <Button variant="outline" size="sm" className="hidden shrink-0 gap-2 sm:inline-flex" onClick={() => window.print()}><Download className="size-3.5" />Export overview</Button>
+        <Button variant="outline" size="sm" onClick={() => window.print()}>
+          Export report
+        </Button>
       </div>
 
       <section aria-label="Dashboard filters" className="mt-6 flex flex-wrap items-center gap-2.5 border-y border-border py-3">
@@ -289,7 +294,7 @@ function openDrawer(
         </> : <div className="flex min-h-[230px] flex-col items-center justify-center px-6 text-center"><div className="grid size-10 place-items-center rounded-md bg-muted"><Search className="size-5 text-muted-foreground" /></div><h3 className="mt-3 text-sm font-semibold">No exceptions found</h3><p className="mt-1 max-w-sm text-xs text-muted-foreground">Try a different search or adjust the active filters to see more results.</p><Button variant="ghost" size="sm" className="mt-3 gap-1.5 text-xs" onClick={() => { setTableQuery(""); setSeverityFilter("All Severities"); setStatusFilter("All Statuses"); onGlobalSearch(""); }}><RotateCcw className="size-3.5" />Clear table filters</Button></div>}
       </section>
 
-      <div className="mt-5 flex items-center justify-between gap-4 text-[11px] text-muted-foreground"><span className="inline-flex items-center gap-1.5"><span className="size-1.5 rounded-full bg-positive" />All systems operational</span><span>Illustrative observations · Apr 01–29, 2026 · Snapshot {snapshotLabel}</span></div>
+      <div className="mt-5 flex items-center justify-between gap-4 text-[11px] text-muted-foreground"><span className="inline-flex items-center gap-1.5">Illustrative data · Not connected to operational systems</span></div>
 
       <Sheet open={activeException !== null} onOpenChange={(open) => { if (!open) setActiveException(null); }}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-[440px]">
@@ -312,7 +317,7 @@ function FilterSelect({ label, value, options, onChange }: { label: string; valu
 function KpiCard({ metric }: { metric: ReturnType<typeof calculateKpis>[number] }) {
   const positiveTrend = metric.positive;
   const movingUp = metric.direction === "up";
-  const icon = metric.icon === "truck" ? <Truck /> : metric.icon === "boxes" ? <Boxes /> : metric.icon === "rotate" ? <RotateCcw /> : <CircleAlert />;
+  const icon = metric.icon === "truck" ? <Truck /> : metric.icon === "boxes" ? <PackageCheck /> : metric.icon === "rotate" ? <RefreshCw /> : <PackageX />;
   return <article className="dashboard-panel flex min-h-[144px] flex-col justify-between p-4" aria-label={`${metric.label}: ${metric.value}, ${metric.change} ${metric.changeMeaning}, ${positiveTrend ? "favorable" : "requires attention"}`}>
     <div className="flex items-center justify-between gap-2"><span className="text-xs font-medium text-muted-foreground">{metric.label}</span><span className={`grid size-8 place-items-center rounded-sm ${positiveTrend ? "bg-positive-subtle text-positive" : "bg-warning-subtle text-warning"}`}>{icon}</span></div>
     <div className="mt-3"><div className="text-[27px] font-semibold leading-none tabular-nums">{metric.value}</div>{metric.detail && <div className="mt-1.5 text-[10px] text-muted-foreground">{metric.detail}</div>}<div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px]"><span className={`inline-flex items-center gap-0.5 font-semibold ${positiveTrend ? "text-positive" : "text-critical"}`}>{movingUp ? <ArrowUpRight className="size-3.5" /> : <ArrowDownRight className="size-3.5" />}{metric.change}</span><span className="text-muted-foreground">{metric.note}</span></div></div>

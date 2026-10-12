@@ -62,7 +62,11 @@ export function AppShell({ children, onGlobalSearch }: AppShellProps) {
       {mobileOpen && <button aria-label="Close navigation" onClick={() => setMobileOpen(false)} className="fixed inset-0 z-30 bg-foreground/30 md:hidden" />}
       <aside className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-border bg-sidebar transition-[width,transform] duration-200 ${collapsed ? "w-[72px]" : "w-[248px]"} ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
         <div className={`flex h-16 shrink-0 items-center border-b border-sidebar-border ${collapsed ? "justify-center px-3" : "gap-3 px-5"}`}>
-          <div className="grid size-9 shrink-0 place-items-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground"><Command className="size-[18px]" /></div>
+          <div className="grid size-9 shrink-0 place-items-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground"><img
+  src="/supply-chain-logo.svg"
+  alt="Supply Chain Intelligence"
+  className="size-9 shrink-0 rounded-md"
+/></div>
           {!collapsed && <div className="min-w-0"><p className="truncate text-[13px] font-semibold leading-4">Supply Chain</p><p className="text-[11px] leading-4 text-muted-foreground">Intelligence</p></div>}
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-5">

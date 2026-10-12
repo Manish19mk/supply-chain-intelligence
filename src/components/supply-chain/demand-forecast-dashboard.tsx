@@ -5,6 +5,9 @@ import {
   ArrowDownRight,
   ArrowRight,
   ArrowUpRight,
+  Target,
+  Scale,
+  ChartNoAxesCombined,
   Activity,
   Search,
   SlidersHorizontal,
@@ -253,10 +256,10 @@ const trend = useMemo(() => {
       </section>
 
       <section aria-label="Demand KPIs" className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard label="Forecast Accuracy" value={`${accuracy.toFixed(1)}%`} note="1 − absolute error / actual demand" icon={<Activity className="size-4" />} />
-        <KpiCard label="Forecast Bias" value={formatPercent(bias)} note="Positive means forecast exceeds actuals" icon={<TrendingUp className="size-4" />} />
-        <KpiCard label="Forecast Demand" value={formatNumber(totalForecast)} note="Units in the selected SKU scope" icon={<ArrowUpRight className="size-4" />} />
-        <KpiCard label="Demand Growth" value={formatPercent(growthPercent)} note="Forecast vs. previous forecast" icon={<ArrowDownRight className="size-4" />} />
+        <KpiCard label="Forecast Accuracy" value={`${accuracy.toFixed(1)}%`} note="1 − absolute error / actual demand" icon={<Target className="size-4" />} />
+        <KpiCard label="Forecast Bias" value={formatPercent(bias)} note="Positive means forecast exceeds actuals" icon={<Scale className="size-4" />} />
+        <KpiCard label="Forecast Demand" value={formatNumber(totalForecast)} note="Units in the selected SKU scope" icon={<ChartNoAxesCombined className="size-4" />} />
+        <KpiCard label="Demand Growth" value={formatPercent(growthPercent)} note="Forecast vs. previous forecast" icon={<TrendingUp className="size-4" />} />
       </section>
 
       <section className="mt-6 grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.7fr)]">

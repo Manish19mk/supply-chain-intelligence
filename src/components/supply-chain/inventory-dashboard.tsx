@@ -12,6 +12,8 @@ import {
   Search,
   SlidersHorizontal,
   TrendingUp,
+  PackageCheck,
+  CalendarClock,
   Warehouse,
   X,
 } from "lucide-react";
@@ -167,13 +169,14 @@ export function InventoryDashboard() {
 
   return (
     <main className="mx-auto max-w-[1540px] px-4 pb-10 pt-7 sm:px-6 lg:px-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+      <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <span>Workspace</span>
             <ArrowRight className="size-3" />
             <span className="text-foreground">Inventory Intelligence</span>
           </div>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          
           <h1 className="text-[25px] font-semibold leading-tight sm:text-[27px]">
             Inventory Intelligence
           </h1>
@@ -183,15 +186,9 @@ export function InventoryDashboard() {
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2"
-          onClick={() => window.print()}
-        >
-          <Package className="size-3.5" />
-          Export inventory
-        </Button>
+        <Button variant="outline" size="sm" onClick={() => window.print()}>
+                  Export report
+                </Button>
       </div>
 
       <section
@@ -261,14 +258,14 @@ export function InventoryDashboard() {
           label="Units on Hand"
           value={totalUnits.toLocaleString("en-US")}
           note="Across visible SKUs"
-          icon={<Warehouse className="size-4" />}
+          icon={<PackageCheck className="size-4" />}
           tone="positive"
         />
         <KpiCard
           label="Average Days of Supply"
           value={`${averageDays} days`}
           note="Based on sample daily demand"
-          icon={<TrendingUp className="size-4" />}
+          icon={<CalendarClock className="size-4" />}
           tone="info"
         />
         <KpiCard
@@ -581,10 +578,7 @@ export function InventoryDashboard() {
       </section>
 
       <div className="mt-5 flex items-center justify-between gap-4 text-[11px] text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5">
-          <span className="size-1.5 rounded-full bg-positive" />
-          Inventory monitoring active
-        </span>
+        
         <span>Illustrative data · Not connected to operational systems</span>
       </div>
 

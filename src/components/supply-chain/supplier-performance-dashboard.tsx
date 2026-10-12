@@ -8,6 +8,8 @@ import {
   ArrowUpRight,
   Search,
   ShieldCheck,
+  CalendarClock,
+  ShieldAlert,
   SlidersHorizontal,
   Truck,
 } from "lucide-react";
@@ -303,13 +305,13 @@ const categoryData = useMemo(() => {
           label="Average Lead Time"
           value={`${averageLeadTime.toFixed(1)} days`}
           note="Average replenishment lead time"
-          icon={<Activity className="size-4" />}
+          icon={<CalendarClock className="size-4" />}
         />
         <KpiCard
           label="High-Risk Suppliers"
           value={String(highRiskCount)}
           note={`${supplierCount} suppliers in selected scope`}
-          icon={<AlertTriangle className="size-4" />}
+          icon={<ShieldAlert className="size-4" />}
         />
       </section>
 

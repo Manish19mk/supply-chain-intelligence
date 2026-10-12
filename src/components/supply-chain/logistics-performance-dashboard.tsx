@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from "react";
 import {
   Activity,
@@ -6,6 +5,7 @@ import {
   ArrowRight,
   Clock3,
   Search,
+  Wallet,
   SlidersHorizontal,
   Truck,
 } from "lucide-react";
@@ -305,13 +305,13 @@ export function LogisticsPerformanceDashboard() {
           label="Freight Spend"
           value={formatCurrency(freightSpend)}
           note="Spend in the selected region"
-          icon={<Activity className="size-4" />}
+          icon={<Wallet className="size-4" />}
         />
         <KpiCard
           label="Delayed Shipments"
           value={String(delayedCount)}
           note={`${dashboardRecords.length} shipments in selected scope`}
-          icon={<AlertTriangle className="size-4" />}
+          icon={<Truck className="size-4" />}
         />
       </section>
 

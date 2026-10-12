@@ -17,6 +17,7 @@ import {
   Clock3,
   Search,
   ShieldAlert,
+  UserRoundPlus,
     UserRound,
   SlidersHorizontal,
   X,
@@ -442,7 +443,7 @@ export function ExceptionCenterDashboard() {
           title="Unassigned Exceptions"
           value={formatNumber(metrics.unassigned)}
           subtitle="Require an owner"
-          icon={<UserRound size={19} />}
+          icon={<UserRoundPlus size={19} />}
           iconClass="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
         />
         <MetricCard
