@@ -55,7 +55,7 @@ export function AppShell({ children, onGlobalSearch }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const currentPage = navigationItems.find((item) => item.to === pathname)?.label ??
-    (pathname === "/settings" ? "Settings" : pathname === "/help" ? "Help & Support" : "Workspace");
+    (pathname === "/settings" ? "Settings" : pathname === "/my-profile" ? "My Profile" : "Workspace");
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -106,7 +106,13 @@ export function AppShell({ children, onGlobalSearch }: AppShellProps) {
             </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild><Button variant="ghost" className="h-9 gap-2 px-2"><Avatar className="size-7"><AvatarFallback className="bg-secondary text-[10px] font-semibold text-secondary-foreground">MC</AvatarFallback></Avatar><span className="hidden text-xs font-medium lg:inline">Morgan</span><ChevronDown className="hidden size-3.5 text-muted-foreground lg:inline" /></Button></DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52"><DropdownMenuLabel><span className="block">Morgan Carter</span><span className="text-xs font-normal text-muted-foreground">Supply Chain Manager</span></DropdownMenuLabel><DropdownMenuSeparator /><DropdownMenuItem><UserRound />My profile</DropdownMenuItem><DropdownMenuItem asChild><Link to="/settings"><Settings />Settings</Link></DropdownMenuItem></DropdownMenuContent>
+              <DropdownMenuContent align="end" className="w-52"><DropdownMenuLabel><span className="block">Morgan Carter</span><span className="text-xs font-normal text-muted-foreground">Supply Chain Manager</span></DropdownMenuLabel><DropdownMenuSeparator /><DropdownMenuItem asChild>
+  <Link to="/my-profile">
+    <UserRound />
+    My profile
+  </Link>
+              </DropdownMenuItem>
+                <DropdownMenuItem asChild><Link to="/settings"><Settings />Settings</Link></DropdownMenuItem></DropdownMenuContent>
             </DropdownMenu>
           </div>
           {mobileSearchOpen && <Input id="mobile-search" aria-label="Search exceptions" placeholder="Search exceptions..." onChange={(event) => onGlobalSearch?.(event.target.value)} className="col-span-3 h-9 sm:hidden" />}
