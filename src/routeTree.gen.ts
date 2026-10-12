@@ -15,6 +15,7 @@ import { Route as ExceptionCenterRouteImport } from './routes/exception-center'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as InventoryIntelligenceRouteImport } from './routes/inventory-intelligence'
 import { Route as LogisticsPerformanceRouteImport } from './routes/logistics-performance'
+import { Route as MyProfileRouteImport } from './routes/my-profile'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SupplierPerformanceRouteImport } from './routes/supplier-performance'
@@ -49,6 +50,11 @@ const LogisticsPerformanceRoute = LogisticsPerformanceRouteImport.update({
   path: '/logistics-performance',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MyProfileRoute = MyProfileRouteImport.update({
+  id: '/my-profile',
+  path: '/my-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReportsRoute = ReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/inventory-intelligence': typeof InventoryIntelligenceRoute
   '/logistics-performance': typeof LogisticsPerformanceRoute
+  '/my-profile': typeof MyProfileRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/supplier-performance': typeof SupplierPerformanceRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/help': typeof HelpRoute
   '/inventory-intelligence': typeof InventoryIntelligenceRoute
   '/logistics-performance': typeof LogisticsPerformanceRoute
+  '/my-profile': typeof MyProfileRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/supplier-performance': typeof SupplierPerformanceRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/inventory-intelligence': typeof InventoryIntelligenceRoute
   '/logistics-performance': typeof LogisticsPerformanceRoute
+  '/my-profile': typeof MyProfileRoute
   '/reports': typeof ReportsRoute
   '/settings': typeof SettingsRoute
   '/supplier-performance': typeof SupplierPerformanceRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/inventory-intelligence'
     | '/logistics-performance'
+    | '/my-profile'
     | '/reports'
     | '/settings'
     | '/supplier-performance'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/inventory-intelligence'
     | '/logistics-performance'
+    | '/my-profile'
     | '/reports'
     | '/settings'
     | '/supplier-performance'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/inventory-intelligence'
     | '/logistics-performance'
+    | '/my-profile'
     | '/reports'
     | '/settings'
     | '/supplier-performance'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   InventoryIntelligenceRoute: typeof InventoryIntelligenceRoute
   LogisticsPerformanceRoute: typeof LogisticsPerformanceRoute
+  MyProfileRoute: typeof MyProfileRoute
   ReportsRoute: typeof ReportsRoute
   SettingsRoute: typeof SettingsRoute
   SupplierPerformanceRoute: typeof SupplierPerformanceRoute
@@ -191,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LogisticsPerformanceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/my-profile': {
+      id: '/my-profile'
+      path: '/my-profile'
+      fullPath: '/my-profile'
+      preLoaderRoute: typeof MyProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reports': {
       id: '/reports'
       path: '/reports'
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   InventoryIntelligenceRoute: InventoryIntelligenceRoute,
   LogisticsPerformanceRoute: LogisticsPerformanceRoute,
+  MyProfileRoute: MyProfileRoute,
   ReportsRoute: ReportsRoute,
   SettingsRoute: SettingsRoute,
   SupplierPerformanceRoute: SupplierPerformanceRoute,
