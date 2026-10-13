@@ -301,11 +301,11 @@ export function ExceptionCenterDashboard() {
 
   return (
       <main className="mx-auto max-w-[1540px] space-y-6 px-4 pb-10 pt-7 sm:px-6 lg:px-8">
-          <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+          {/*<div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
   <span>Workspace</span>
   <ArrowRight className="size-3" />
   <span className="text-foreground">Exception Center</span>
-</div>
+</div>*/}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex items-center gap-2">

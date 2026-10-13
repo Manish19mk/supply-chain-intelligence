@@ -169,11 +169,11 @@ export function InventoryDashboard() {
 
   return (
     <main className="mx-auto max-w-[1540px] px-4 pb-10 pt-7 sm:px-6 lg:px-8">
-      <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+      {/*<div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <span>Workspace</span>
             <ArrowRight className="size-3" />
             <span className="text-foreground">Inventory Intelligence</span>
-          </div>
+          </div>*/}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           

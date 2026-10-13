@@ -55,7 +55,7 @@ export function AppShell({ children, onGlobalSearch }: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const currentPage = navigationItems.find((item) => item.to === pathname)?.label ??
-    (pathname === "/settings" ? "Settings" : pathname === "/my-profile" ? "My Profile" : "Workspace");
+    (pathname === "/settings" ? "Settings" : pathname === "/my-profile" ? "My Profile" : "Help & Support");
 
   return (
     <div className="min-h-screen bg-background text-foreground">

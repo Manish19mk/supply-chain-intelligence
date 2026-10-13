@@ -246,11 +246,20 @@ export function HelpSupportDashboard() {
 
   return (
     <main className="mx-auto max-w-[1540px] space-y-6 px-4 pb-10 pt-7 sm:px-6 lg:px-8">
-      <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
+      {/*<div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
         <span>Workspace</span>
         <ArrowRight className="size-3" />
         <span className="text-foreground">Help &amp; Support</span>
-      </div>
+      </div>*/}
+
+      <div>
+  <h1 className="[25px] font-semibold leading-tight sm:text-[27px]">
+    Help &amp; Support
+  </h1>
+  <p className="mt-2 text-sm text-muted-foreground">
+    Find answers, explore resources, and get help with your workspace.
+  </p>
+</div>
 
       <section className="rounded-md border border-border bg-card px-5 py-7 sm:px-8 sm:py-9">
         <div className="mx-auto max-w-[720px] text-center">
