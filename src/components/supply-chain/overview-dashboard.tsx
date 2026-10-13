@@ -186,7 +186,7 @@ function openDrawer(
       <div className="flex min-w-0 flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           
-          <h1 className="text-[25px] font-semibold leading-tight tracking-normal sm:text-[27px]">Supply Chain Overview</h1>
+          <h1 className="text-[25px] font-semibold leading-tight tracking-normal sm:text-[27px]">Overview</h1>
           <p className="mt-2 max-w-[650px] text-sm leading-5 text-muted-foreground">Monitor network performance, identify risks, and prioritize operational action.</p>
         </div>
         <Button variant="outline" size="sm" onClick={() => window.print()}>
